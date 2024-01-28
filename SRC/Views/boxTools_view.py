@@ -1,13 +1,26 @@
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, QPushButton, QSpinBox, QLabel)
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, QPushButton, QSpinBox, QLabel, QComboBox)
+from PySide6.QtGui import QFontDatabase
+from PySide6.QtCore import Signal
 
 class ProprietesWidget(QWidget):
-    def __init__(self, parent=None):
+    xChanged = Signal(int)
+    yChanged = Signal(int)
+    def __init__(self, imageController, parent=None):
         super().__init__(parent)
         self.layout = QVBoxLayout(self)
-        
+        # Controller
+        self.imageController = imageController
+
+        """Création des Groupe (section) des Propriétés"""
         # Création du groupe Paramètres
         self.parametreContainer = QGroupBox()
         self.parametreLayout = QVBoxLayout(self.parametreContainer)
+
+        # Création du groupe Texte
+        self.texteContainer = QGroupBox()
+        self.texteLayout = QVBoxLayout(self.texteContainer)
+
+
 
         # Ajout des éléments de dimensions
         self.dimensionsWidget = QWidget()
@@ -25,14 +38,43 @@ class ProprietesWidget(QWidget):
         self.positionsLayout = QHBoxLayout(self.positionsWidget)
         self.xpositionsEdit = QSpinBox(self.positionsWidget)
         self.ypositionsEdit = QSpinBox(self.positionsWidget)
-        self.positionsLayout.addWidget(QLabel("Position X:"))
+        self.positionsLayout.addWidget(QLabel("Position X :"))
         self.positionsLayout.addWidget(self.xpositionsEdit)
-        self.positionsLayout.addWidget(QLabel("Position Y:"))
+        self.positionsLayout.addWidget(QLabel("Position Y :"))
         self.positionsLayout.addWidget(self.ypositionsEdit)
         self.parametreLayout.addWidget(self.positionsWidget)
 
+        maxValues = 999999
+        self.xpositionsEdit.setMaximum(maxValues)
+        self.ypositionsEdit.setMaximum(maxValues)
+
+
+        self.textWidget = QWidget()
+        self.texteContainer = QGroupBox()
+        self.texteLayout = QVBoxLayout(self.textWidget)
+
+        # Configuration de la ComboBox pour la police
+        self.fontSizeChange = QSpinBox(self.textWidget)
+        self.fontComboBox = QComboBox(self.textWidget)
+        self.fontComboBox.addItems(QFontDatabase().families())
+        self.texteLayout.addWidget(QLabel('Taille Police :'))
+        self.texteLayout.addWidget(self.fontSizeChange)
+        self.fontComboBox.addItem("Charger une police...")
+        self.texteLayout.addWidget(QLabel('Changer la police :'))
+        
+        # Ajout de la ComboBox au layout du groupe de texte
+        self.texteLayout.addWidget(self.fontComboBox)
+
+        self.texteContainer.setLayout(self.texteLayout)
+
         # Ajout du groupe Paramètres au layout principal
         self.layout.addWidget(self.createCollapsibleGroup(self.parametreContainer, "Parametres"))
+        self.layout.addWidget(self.createCollapsibleGroup(self.texteContainer, "Texte"))
+
+        #Connexions des SpinBox aux methodes
+        self.fontComboBox.currentIndexChanged.connect(self.fontChanged)
+        self.xpositionsEdit.valueChanged.connect(self.xChanged.emit)
+        self.ypositionsEdit.valueChanged.connect(self.yChanged.emit)
 
     def createCollapsibleGroup(self, groupBox, title):
         """
@@ -55,16 +97,10 @@ class ProprietesWidget(QWidget):
         containerLayout.addWidget(groupBox)
         
         return container
-
+    
     def setXandY(self, x, y):
         self.xpositionsEdit.setValue(x)
         self.ypositionsEdit.setValue(y)
-
-    def applyChanges(self):
-        # Appliquez les changements à l'élément sélectionné dans la liste
-        selectedItem = self.parent().itemWidget.itemsList.currentItem()
-        if selectedItem:
-            textItem = self.parent().itemWidget.getTextItemFor(selectedItem)
-            textItem.x = self.xpositionsEdit.value()
-            textItem.y = self.ypositionsEdit.value()
-            self.parent().imageViewActif.mettreAJourImage()
+    
+    def fontChanged(self, index):
+        QComboBox.information(None, 'Information', 'Cette fonctionnalité n\'existe pas encore')

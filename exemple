@@ -1,0 +1,42 @@
+from PySide6.QtWidgets import QApplication, QMainWindow, QComboBox, QVBoxLayout, QWidget, QPushButton, QFileDialog
+from PySide6.QtGui import QFontDatabase, QFont
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        centralWidget = QWidget()
+        self.setCentralWidget(centralWidget)
+        layout = QVBoxLayout(centralWidget)
+
+        self.fontComboBox = QComboBox()
+        # Ajouter les polices disponibles
+        self.fontComboBox.addItems(QFontDatabase().families())
+        # Ajouter une option pour charger une police personnalisée
+        self.fontComboBox.addItem("Charger une police...")
+        self.fontComboBox.currentIndexChanged.connect(self.fontChanged)
+        layout.addWidget(self.fontComboBox)
+
+    def fontChanged(self, index):
+        if self.fontComboBox.currentText() == "Charger une police...":
+            self.loadCustomFont()
+        else:
+            # Appliquer la police sélectionnée
+            font = QFont(self.fontComboBox.currentText())
+            self.centralWidget().setFont(font)
+
+    def loadCustomFont(self):
+        filename, _ = QFileDialog.getOpenFileName(self, "Choisir une police", "", "Fichiers de police (*.ttf *.otf)")
+        if filename:
+            id = QFontDatabase.addApplicationFont(filename)
+            if id != -1:
+                family = QFontDatabase.applicationFontFamilies(id)[0]
+                customFont = QFont(family)
+                self.centralWidget().setFont(customFont)
+            else:
+                print("Échec du chargement de la police")
+
+app = QApplication([])
+window = MainWindow()
+window.show()
+app.exec()

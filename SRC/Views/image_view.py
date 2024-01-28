@@ -4,13 +4,13 @@ from PySide6.QtGui import QPixmap, QPainter, QFont
 from PySide6.QtCore import Qt, Signal
 from Models.text_item import TextItem
 
-class ImageView(QWidget):
-    """
+"""///////////////////////////////////////////////////////////////////////////
     Widget pour afficher et manipuler des images dans le Générateur de fiches.
 
     Permet d'afficher une image vide ou chargée, d'ajouter des annotations
     textuelles et d'exporter l'image résultante.
-    """
+////////////////////////////////////////////////////////////////////////////"""
+class ImageView(QWidget):
     itemAdded = Signal(TextItem)
 
     def __init__(self, parent=None, imageWidth=800, imageHeight=600):
@@ -50,17 +50,18 @@ class ImageView(QWidget):
         self.mettreAJourImage()
 
     def ajouterTextItem(self, textItem):
-        self.textItems.append(textItem)  # Ajouter le TextItem à la liste
-        self.itemAdded.emit(textItem.nom)
-        self.mettreAJourImage()  # Mettre à jour l'image
+        self.textItems.append(textItem)
+        self.itemAdded.emit(textItem)
+        self.mettreAJourImage() 
 
     def mettreAJourImage(self):
+        print('Mise à jour image effectué')
         pixmap = QPixmap(self.imageLabel.pixmap().size())
         pixmap.fill(Qt.white)
         painter = QPainter(pixmap)
         painter.setFont(QFont('Arial', 12))
         
         for item in self.textItems:
-            painter.drawText(item.x, item.y, item.text)  # Utiliser les propriétés de TextItem
+            painter.drawText(item.x, item.y, item.nom)  # Utiliser les propriétés de TextItem
         painter.end()
         self.imageLabel.setPixmap(pixmap)

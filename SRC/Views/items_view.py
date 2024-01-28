@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QListWidgetItem
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QListWidgetItem, QMessageBox
 from PySide6.QtCore import Qt, Signal
 from Models.text_item import TextItem
 
@@ -8,7 +8,6 @@ class ItemWidget(QWidget):
         super().__init__(parent)
         self.layout = QVBoxLayout(self)
         self.proprietesWidget = proprietesWidget
-
         
         # Création du QListWidget pour les éléments
         self.itemsList = QListWidget(self)
@@ -16,12 +15,12 @@ class ItemWidget(QWidget):
 
         self.itemsList.itemSelectionChanged.connect(self.onItemSelected)
 
-
     def addItem(self, textItem):
         """Ajoute un nouvel item à la liste."""
-        item = QListWidgetItem(textItem)
-        item.setData(Qt.UserRole, textItem)  # Stocke une référence à textItem
+        item = QListWidgetItem(str(textItem))
+        item.setData(Qt.UserRole, textItem)
         self.itemsList.addItem(item)
+        self.itemsList.setCurrentItem(item)
 
     def onItemSelected(self):
         selectedItem = self.itemsList.currentItem()
@@ -31,4 +30,5 @@ class ItemWidget(QWidget):
 
     def getTextItemFor(self, listItem):
         """Retourne le TextItem correspondant à l'élément de la liste donné."""
-        return listItem.data(Qt.UserRole)
+        textItem = listItem.data(Qt.UserRole)
+        return textItem

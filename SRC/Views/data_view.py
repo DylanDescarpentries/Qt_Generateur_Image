@@ -68,10 +68,14 @@ class DataView(QWidget):
             nomColonne = self.tableView.model().headerData(currentIndex.column(), Qt.Horizontal)
             donnees = self.tableView.model().columnData(currentIndex.column())
 
-            # Supposons que les données de la colonne sont une liste de chaînes de caractères
-            text = ", ".join(str(donnees))  # Convertit les données en une seule chaîne de caractères
-            textItem = TextItem(nomColonne, text)  # Créer un TextItem avec nom et text
+            # Assurez-vous que 'donnees' est une liste de chaînes de caractères
+            if not isinstance(donnees, list):
+                print("Les données ne sont pas une liste.")
+                return
+
+            # Créer un TextItem avec la liste des données
+            textItem = TextItem(nomColonne, donnees) 
 
             # Émettre le signal avec l'objet TextItem
-            self.colonneAjoutee.emit(textItem)    
+            self.colonneAjoutee.emit(textItem)
 
