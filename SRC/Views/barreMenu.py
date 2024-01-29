@@ -1,7 +1,6 @@
 from PySide6.QtWidgets import QMenuBar, QApplication, QMessageBox
 from PySide6.QtGui import QAction
 from Views.dialogbox.dialogNouveauProjet import DialogNouveauProjet
-from Views.dialogbox.progressbar import ProgressBar
 
 
 class MenuBarre(QMenuBar):
@@ -56,10 +55,6 @@ class MenuBarre(QMenuBar):
     # Création du menu Edition
     def creerEditMenu(self):
         editMenu = self.addMenu('Edition')
-        testChargementAction = QAction('TestChargement', self)
-        testChargementAction.triggered.connect(self.test)
-
-        editMenu.addAction(testChargementAction)
 
     def creerAffichageMenu(self):
         affichageMenu = self.addMenu('Affichage')
@@ -71,7 +66,7 @@ class MenuBarre(QMenuBar):
         afficherDataViewAction.setShortcut('T')
         afficherProprieteAction.setShortcut('P')
 
-        afficherItemAction.triggered.connect(self.mainWindow.uiController.toggleProprietes)
+        afficherItemAction.triggered.connect(self.mainWindow.uiController.toggleItem)
         afficherProprieteAction.triggered.connect(self.mainWindow.uiController.toggleProprietes)
         afficherDataViewAction.triggered.connect(self.mainWindow.uiController.toggleDataView)
 
@@ -94,14 +89,9 @@ class MenuBarre(QMenuBar):
                 pass
     
     def exporterProjet(self):
-        reply = QMessageBox.question(None, "Exporter le projet", "Voulez-vous Exporter le projet ?", QMessageBox.Yes | QMessageBox.No)
+        reply = QMessageBox.question(None, 'Exporter le projet', 'Voulez-vous Exporter le projet ?', QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:
             if hasattr(self.mainWindow, 'imageViewActif') and self.mainWindow.imageViewActif is not None:
                 self.projetController.exporterProjet(self.mainWindow.imageViewActif)
             else:
                 QMessageBox.information(None, 'Évènement Inattendu !', 'Aucun projet à exporter !')
-
-    def test(self):
-        # Créez une instance de la classe ProgressBar
-        progress_dialog = ProgressBar(self)
-        progress_dialog.exec_()

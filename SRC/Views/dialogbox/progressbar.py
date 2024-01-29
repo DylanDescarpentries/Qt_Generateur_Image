@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QApplication, QProgressBar, QDialog, QVBoxLayout, 
 class ProgressBar(QDialog):
     def __init__(self, total_images, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Exportation des images en cours...")
+        self.setWindowTitle('Exportation des images en cours...')
         self.setGeometry(600, 400, 600, 100)
         layout = QVBoxLayout(self)
 
@@ -33,6 +33,6 @@ class ProgressBar(QDialog):
 
     def update_progress(self, current_image, image_name):
         self.progressBar.setValue(current_image)
-        self.currentImageLabel.setText(f"Exportation en cours : {image_name}")
+        self.currentImageLabel.setText(f'Exportation en cours : {image_name}')
 
 

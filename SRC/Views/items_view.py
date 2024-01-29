@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QListWidgetItem, QMessageBox
 from PySide6.QtCore import Qt, Signal
-from Models.text_item import TextItem
+from Models.text_item import TextColonneteItem
 
 class ItemWidget(QWidget):
-    itemSelected = Signal(TextItem)
+    itemSelected = Signal(TextColonneteItem)
     def __init__(self, proprietesWidget, parent=None):
         super().__init__(parent)
         self.layout = QVBoxLayout(self)
@@ -15,12 +15,13 @@ class ItemWidget(QWidget):
 
         self.itemsList.itemSelectionChanged.connect(self.onItemSelected)
 
-    def addItem(self, textItem):
-        """Ajoute un nouvel item à la liste."""
-        item = QListWidgetItem(str(textItem))
-        item.setData(Qt.UserRole, textItem)
-        self.itemsList.addItem(item)
-        self.itemsList.setCurrentItem(item)
+    def ajouterItemVersListe(self, item):
+        listItem = QListWidgetItem(str(item))
+        listItem.setData(Qt.UserRole, item)
+        print(f'item : {item}\n {listItem.text()} \n {listItem}')
+        self.itemsList.addItem(listItem)
+        self.itemsList.setCurrentItem(listItem)
+        print(f"Item ajouté : {listItem.text()}")
 
     def onItemSelected(self):
         selectedItem = self.itemsList.currentItem()
@@ -29,6 +30,6 @@ class ItemWidget(QWidget):
             self.itemSelected.emit(textItem)
 
     def getTextItemFor(self, listItem):
-        """Retourne le TextItem correspondant à l'élément de la liste donné."""
+        '''Retourne le TextItem correspondant à l'élément de la liste donné.'''
         textItem = listItem.data(Qt.UserRole)
         return textItem
