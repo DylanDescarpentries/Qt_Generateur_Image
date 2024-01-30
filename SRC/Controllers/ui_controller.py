@@ -1,12 +1,13 @@
+from PySide6.QtWidgets import QScrollArea
 from Views.image_view import ImageView
-
 class UiController:
-    def __init__(self,tabWidget, dataViewDockWidget, proprieteDockWidget, itemWidget, itemDockWidget):
+    def __init__(self,tabWidget, dataViewDockWidget, proprieteDockWidget, itemWidget, itemDockWidget, boiteOutilsDockWidget):
         self.dataViewDockWidget = dataViewDockWidget
         self.proprieteDockWidget = proprieteDockWidget
         self.itemDockWidget = itemDockWidget
         self.tabWidget = tabWidget
         self.itemWidget = itemWidget
+        self.boiteOutilsDockWidget = boiteOutilsDockWidget
 
     ''' //////////////////////////////////////////
     S'occupe de basculer la visibilité des widget. 
@@ -24,6 +25,10 @@ class UiController:
         # Basculer la visibilité de Item DockWidget
         self.itemDockWidget.setVisible(not self.itemDockWidget.isVisible())
 
+    def toggleBoiteOutils(self):
+        # Basculer la visibilité de BoiteOutils DockWidget
+        self.boiteOutilsDockWidget.setVisible(not self.boiteOutilsDockWidget.isVisible())
+
     def fermerOnglet(self, index):
         '''
         Ferme l'onglet spécifié dans le QTabWidget.
@@ -32,12 +37,15 @@ class UiController:
         self.tabWidget.removeTab(index)
 
     def ongletChange(self, index):
-        '''
-        S'occupe de gérer l'onglet actif
-        '''
-        imageView = self.tabWidget.widget(index)
-        if isinstance(imageView, ImageView):
-            self.imageViewActif = imageView
-            imageView.itemAdded.connect(self.itemWidget.ajouterItemVersListe)
-        else:
-            self.imageViewActif = None
+    # Obtient le widget actuel dans l'onglet, qui est maintenant un QScrollArea
+        scrollArea = self.tabWidget.widget(index)
+        if isinstance(scrollArea, QScrollArea):
+            # Accéder à ImageView à partir de QScrollArea
+            imageView = scrollArea.widget()
+            if isinstance(imageView, ImageView):
+                self.imageViewActif = imageView
+                # Connecter les signaux comme avant
+                imageView.itemAdded.connect(self.itemWidget.ajouterItemVersListe)
+            else:
+                self.imageViewActif = None
+

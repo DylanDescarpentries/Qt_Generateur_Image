@@ -61,15 +61,19 @@ class MenuBarre(QMenuBar):
         afficherItemAction = QAction('Afficher Items', self)
         afficherProprieteAction = QAction('Propriétés', self)
         afficherDataViewAction = QAction('Tableau', self)
+        afficherBoitOutilsAction = QAction('Boite Outils', self)
 
         afficherItemAction.setShortcut('I')
         afficherDataViewAction.setShortcut('T')
         afficherProprieteAction.setShortcut('P')
+        afficherBoitOutilsAction.setShortcut('B')
 
+        afficherBoitOutilsAction.triggered.connect(self.mainWindow.uiController.toggleBoiteOutils)
         afficherItemAction.triggered.connect(self.mainWindow.uiController.toggleItem)
         afficherProprieteAction.triggered.connect(self.mainWindow.uiController.toggleProprietes)
         afficherDataViewAction.triggered.connect(self.mainWindow.uiController.toggleDataView)
 
+        affichageMenu.addAction(afficherBoitOutilsAction)
         affichageMenu.addAction(afficherItemAction)
         affichageMenu.addAction(afficherProprieteAction)
         affichageMenu.addAction(afficherDataViewAction)

@@ -20,15 +20,15 @@ class ItemWidget(QWidget):
         listItem.setData(Qt.UserRole, item)
         self.itemsList.addItem(listItem)
         self.itemsList.setCurrentItem(listItem)
-
+        self.itemsList.setDragDropMode(QListWidget.InternalMove)
 
     def onItemSelected(self):
         selectedItem = self.itemsList.currentItem()
         if selectedItem:
-            textItem = self.getTextItemFor(selectedItem)
+            textItem = self.getItemFor(selectedItem)
             self.itemSelected.emit(textItem)
 
-    def getTextItemFor(self, listItem):
+    def getItemFor(self, listItem):
         '''Retourne le TextItem correspondant à l'élément de la liste donné.'''
         textItem = listItem.data(Qt.UserRole)
         return textItem

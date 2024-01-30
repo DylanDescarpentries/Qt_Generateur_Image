@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, QPushButton, QSpinBox, QLabel, QComboBox, QColorDialog)
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, QPushButton, QSpinBox, QLabel, QComboBox, QColorDialog, QFileDialog
 from PySide6.QtGui import QFontDatabase, QColor
 from PySide6.QtCore import Signal
 
@@ -7,6 +7,9 @@ class ProprietesWidget(QWidget):
     yChanged = Signal(int)
     fontStyleChanged = Signal(str)
     fontSizeChanged = Signal(int)
+    largeurChanged = Signal(int)
+    hauteurChanged = Signal(int)
+    fontColorChanged = Signal(str)
 
     def __init__(self, imageController, parent=None):
         super().__init__(parent)
@@ -39,6 +42,13 @@ class ProprietesWidget(QWidget):
         self.dimensionsLayout.addWidget(QLabel('Hauteur:'))
         self.dimensionsLayout.addWidget(self.hauteurEdit)
         self.parametreLayout.addWidget(self.dimensionsWidget)
+
+        maxValues = 999999
+        self.largeurEdit.setMaximum(maxValues)
+        self.hauteurEdit.setMaximum(maxValues)
+        # Connexions des SpinBox
+        self.largeurEdit.valueChanged.connect(self.largeurChanged.emit)
+        self.hauteurEdit.valueChanged.connect(self.hauteurChanged.emit)
 
     def setupPositionsWidget(self):
         self.positionsWidget = QWidget()
@@ -77,6 +87,7 @@ class ProprietesWidget(QWidget):
         self.fontEdit.addItem('Charger une police...')
         self.texteLayout.addWidget(QLabel('Changer la police :'))
         self.texteLayout.addWidget(self.fontEdit)
+        self.fontEdit.currentIndexChanged.connect(self.onFontComboBoxChanged)
         self.fontEdit.currentTextChanged.connect(self.fontStyleChanged.emit)
 
     def setupFontSizeSpinBox(self):
@@ -86,9 +97,9 @@ class ProprietesWidget(QWidget):
         self.fontSizeEdit.valueChanged.connect(self.fontSizeChanged.emit)
     
     def setupFontColor(self):
-        self.colorButton = QPushButton("Choisir une couleur", self)
-        self.texteLayout.addWidget(self.colorButton)
-        self.colorButton.clicked.connect(self.openColorDialog)
+        self.fontColorEdit = QPushButton('Choisir une couleur', self)
+        self.texteLayout.addWidget(self.fontColorEdit)
+        self.fontColorEdit.clicked.connect(self.openColorDialog)
 
     def openColorDialog(self):
         # Définir une couleur initiale
@@ -99,7 +110,7 @@ class ProprietesWidget(QWidget):
 
         if color.isValid():
             # Utilisez la couleur sélectionnée ici
-            print("Couleur sélectionnée :", color.name())
+            self.fontColorChanged.emit(color.name())
 
     def createCollapsibleGroup(self, groupBox, title):
         container = QWidget()
@@ -115,3 +126,21 @@ class ProprietesWidget(QWidget):
     def setXandY(self, x, y):
         self.xpositionsEdit.setValue(x)
         self.ypositionsEdit.setValue(y)
+    
+    def onFontComboBoxChanged(self, index):
+        if self.fontEdit.currentText() == "Charger une police...":
+            self.loadCustomFont()
+        else:
+            self.fontStyleChanged.emit(self.fontEdit.currentText())
+
+    def loadCustomFont(self):
+        fontFilePath, _ = QFileDialog.getOpenFileName(self, "Sélectionner une police", "", "Font Files (*.ttf *.otf)")
+        if fontFilePath:
+            fontId = QFontDatabase.addApplicationFont(fontFilePath)
+            if fontId != -1:
+                fontFamilies = QFontDatabase.applicationFontFamilies(fontId)
+                if fontFamilies:
+                    customFontFamily = fontFamilies[0]
+                    self.fontEdit.addItem(customFontFamily)
+                    self.fontEdit.setCurrentText(customFontFamily)
+                    self.fontStyleChanged.emit(customFontFamily)

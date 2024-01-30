@@ -1,6 +1,6 @@
 import os
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
-from PySide6.QtGui import QPixmap, QPainter, QFont
+from PySide6.QtGui import QPixmap, QPainter, QFont, QPen, QColor
 from PySide6.QtCore import Qt, Signal
 from Models.text_item import TextColonneteItem, ImageUniqueItem
 
@@ -25,19 +25,19 @@ class ImageView(QWidget):
         self.layout = QVBoxLayout(self)
         self.imageLabel = QLabel()
         self.layout.addWidget(self.imageLabel)
-        self.createEmptyImage(imageWidth, imageHeight)
+        self.creerImageVide(imageWidth, imageHeight)
         self.items = []  # Stocke les informations sur les colonnes ajoutées
-
-    def createEmptyImage(self, width, height):
+    
+    def creerImageVide(self, width, height):
         '''
         Crée et affiche une image vide de dimensions spécifiées.
 
         :param width: Largeur de l'image vide.
         :param height: Hauteur de l'image vide.
         '''
-        emptyPixmap = QPixmap(width, height)
-        emptyPixmap.fill(Qt.white)
-        self.imageLabel.setPixmap(emptyPixmap)
+        videPixmap = QPixmap(width, height)
+        videPixmap.fill(Qt.white)
+        self.imageLabel.setPixmap(videPixmap)
 
     def afficherNomColonne(self, nomColonne, donnees):
         '''
@@ -62,10 +62,14 @@ class ImageView(QWidget):
         for item in self.items:
             if hasattr(item, 'font') and hasattr(item, 'fontSize'):
                 painter.setFont(QFont(item.font, item.fontSize))
+                color = QColor(item.fontColor)
+                pen = QPen(color)
+                painter.setPen(pen)
                 painter.drawText(item.x, item.y, item.nom)
+
             elif isinstance(item, ImageUniqueItem):
                 imageToDraw = QPixmap(item.imagePath)
-                painter.drawPixmap(item.x, item.y, item.width, item.height, imageToDraw)
+                painter.drawPixmap(item.x, item.y, item.largeur, item.hauteur, imageToDraw)
 
         painter.end()
         self.imageLabel.setPixmap(pixmap)

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 '''////////////////////////////////////////////
 Ouvre une boîte de dialogue lorsque l'utilisateur
 créé unnouveau projet et retourne les info saisies
@@ -26,4 +26,12 @@ class DialogNouveauProjet(QDialog):
 
     def getDimensions(self):
         '''Retourne les dimensions saisies par l'utilisateur.'''
-        return self.largeurEdit.text(), self.hauteurEdit.text()
+        largeur = self.largeurEdit.text()
+        hauteur = self.hauteurEdit.text()
+
+        # Vérifie si les champs sont vides
+        if not largeur or not hauteur:
+            QMessageBox.warning(None, 'Attention !', 'Veuillez entrer des valeurs pour la largeur et la hauteur.')
+            return None, None
+        else:
+            return largeur, hauteur

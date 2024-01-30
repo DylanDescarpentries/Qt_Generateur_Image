@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout,  QDockWidget, QTabWidget, QMessageBox
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
 from Views.barreMenu import MenuBarre
 from Views.data_view import DataView
 from Views.proprietesBox import ProprietesWidget
@@ -61,7 +62,7 @@ class MainWindow(QMainWindow):
         self.dataDockWidget = self._createLeftDockWidget('Tableau', self.dataView)
         self.proprietesDockWidget = self._createRightDockWidget('Propriétés', self.proprietesWidget)
         self.itemDockWidget = self._createRightDockWidget('Items', self.itemWidget)
-        self.uiController = UiController(self.tabWidget, self.dataDockWidget, self.proprietesDockWidget, self.itemWidget, self.itemDockWidget)
+        self.uiController = UiController(self.tabWidget, self.dataDockWidget, self.proprietesDockWidget, self.itemWidget, self.itemDockWidget, self.boiteOutilsDockWidget)
 
     def _setupMenuBar(self):
         self.menuBarre = MenuBarre(self, self.tabWidget, self.dataController, self.projetController)
@@ -77,6 +78,9 @@ class MainWindow(QMainWindow):
         self.proprietesWidget.yChanged.connect(self.imageController.onYChanged) 
         self.proprietesWidget.fontStyleChanged.connect(self.imageController.onFontStyleChanged)  
         self.proprietesWidget.fontSizeChanged.connect(self.imageController.onFontSizeChanged)
+        self.proprietesWidget.fontColorChanged.connect(self.imageController.onFontColorChanged)
+        self.proprietesWidget.largeurChanged.connect(self.imageController.onLargeurChanged)
+        self.proprietesWidget.hauteurChanged.connect(self.imageController.onHauteurChanged)
     
     def _createRightDockWidget(self, title, widget):
         dockWidget = QDockWidget(title, self)

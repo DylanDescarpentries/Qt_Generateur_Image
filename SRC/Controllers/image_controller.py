@@ -19,6 +19,18 @@ class ImageController:
         if textItem:
             textItem.y = y
             self.mainWindow.imageViewActif.mettreAJourImage()
+    
+    def onLargeurChanged(self, largeur):
+        item = self.getSelectedTextItem()
+        if item:
+            item.largeur = largeur
+            self.mainWindow.imageViewActif.mettreAJourImage()
+    
+    def onHauteurChanged(self, hauteur):
+        item = self.getSelectedTextItem()
+        if item:
+            item.hauteur = hauteur
+            self.mainWindow.imageViewActif.mettreAJourImage()
 
     def onFontStyleChanged(self, font):
         textItem = self.getSelectedTextItem()
@@ -30,6 +42,12 @@ class ImageController:
         textItem = self.getSelectedTextItem()
         if textItem:
             textItem.fontSize = fontSize
+            self.mainWindow.imageViewActif.mettreAJourImage()
+
+    def onFontColorChanged(self, fontColor):
+        textItem = self.getSelectedTextItem()
+        if textItem:
+            textItem.fontColor = fontColor
             self.mainWindow.imageViewActif.mettreAJourImage()
 
     def getSelectedTextItem(self):
@@ -53,9 +71,12 @@ class ImageController:
        if self.mainWindow.imageViewActif:
             texte, ok = QInputDialog.getText(None, 'Ajouter Texte', 'Entrer votre texte :')
             if ok:
-                textItem = TextUniqueItem(texte, 20, 20)
-                self.mainWindow.imageViewActif.ajouterItem(textItem)
-                self.mainWindow.itemWidget.ajouterItemVersListe(textItem) 
+                if texte == '':
+                    QMessageBox.warning(None, 'Attention !', 'Vous n\'avez pas entré de texte')
+                else:
+                    textItem = TextUniqueItem(texte, 20, 20)
+                    self.mainWindow.imageViewActif.ajouterItem(textItem)
+                    self.mainWindow.itemWidget.ajouterItemVersListe(textItem) 
     
     def onImageAjout(self):
         if self.mainWindow.imageViewActif:

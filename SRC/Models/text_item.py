@@ -27,12 +27,12 @@ class TextUniqueItem:
         return self.nom
 
 class ImageUniqueItem:
-    def __init__(self, imagePath, x, y, width, height):
+    def __init__(self, imagePath, x, y, largeur, hauteur):
         self.imagePath = imagePath
         self.x = x
         self.y = y
-        self.width = width
-        self.height = height
+        self.largeur = largeur
+        self.hauteur = hauteur
 
     def __str__(self):
         return os.path.basename(self.imagePath)
