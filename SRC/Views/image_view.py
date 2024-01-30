@@ -26,7 +26,7 @@ class ImageView(QWidget):
         self.imageLabel = QLabel()
         self.layout.addWidget(self.imageLabel)
         self.createEmptyImage(imageWidth, imageHeight)
-        self.textItems = []  # Stocke les informations sur les colonnes ajoutées
+        self.items = []  # Stocke les informations sur les colonnes ajoutées
 
     def createEmptyImage(self, width, height):
         '''
@@ -49,9 +49,9 @@ class ImageView(QWidget):
         self.colonnes.append({'nom': nomColonne, 'donnees': donnees})
         self.mettreAJourImage()
 
-    def ajouterTextItem(self, textItem):
-        self.textItems.append(textItem)
-        self.itemAdded.emit(textItem)
+    def ajouterItem(self, item):
+        self.items.append(item)
+        self.itemAdded.emit(item)
         self.mettreAJourImage() 
 
     def mettreAJourImage(self):
@@ -59,7 +59,7 @@ class ImageView(QWidget):
         pixmap.fill(Qt.white)
         painter = QPainter(pixmap)
 
-        for item in self.textItems:
+        for item in self.items:
             if hasattr(item, 'font') and hasattr(item, 'fontSize'):
                 painter.setFont(QFont(item.font, item.fontSize))
                 painter.drawText(item.x, item.y, item.nom)

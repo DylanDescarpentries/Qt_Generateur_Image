@@ -18,10 +18,9 @@ class ItemWidget(QWidget):
     def ajouterItemVersListe(self, item):
         listItem = QListWidgetItem(str(item))
         listItem.setData(Qt.UserRole, item)
-        print(f'item : {item}\n {listItem.text()} \n {listItem}')
         self.itemsList.addItem(listItem)
         self.itemsList.setCurrentItem(listItem)
-        print(f"Item ajouté : {listItem.text()}")
+
 
     def onItemSelected(self):
         selectedItem = self.itemsList.currentItem()

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout,  QDockWidget, QTabWidget
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout,  QDockWidget, QTabWidget, QMessageBox
 from PySide6.QtCore import Qt
 from Views.barreMenu import MenuBarre
 from Views.data_view import DataView
@@ -72,7 +72,7 @@ class MainWindow(QMainWindow):
         self.dataController.fileImported.connect(self.dataView.load_data)
         self.tabWidget.currentChanged.connect(self.uiController.ongletChange)
         self.tabWidget.tabCloseRequested.connect(self.uiController.fermerOnglet)
-        self.itemWidget.itemSelected.connect(self.onTextItemSelected)     
+        self.itemWidget.itemSelected.connect(self.onItemSelected)     
         self.proprietesWidget.xChanged.connect(self.imageController.onXChanged)
         self.proprietesWidget.yChanged.connect(self.imageController.onYChanged) 
         self.proprietesWidget.fontStyleChanged.connect(self.imageController.onFontStyleChanged)  
@@ -97,13 +97,13 @@ class MainWindow(QMainWindow):
 
     def onColonneAjoutee(self, textItem):
         if self.imageViewActif:
-            self.imageViewActif.ajouterTextItem(textItem)
+            self.imageViewActif.ajouterItem(textItem)
 
-    def onTextItemSelected(self, textItem):
-        if isinstance(textItem, TextColonneteItem):
+    def onItemSelected(self, item):
+        if isinstance(item, TextColonneteItem):
             try:
-                self.proprietesWidget.setXandY(textItem.x, textItem.y)
+                self.proprietesWidget.setXandY(item.x, item.y)
             except ValueError:
+                QMessageBox.critical(None, 'Erreur Valeur', f'Erreur : les valeurs \'x\' et \'y\' doivent être des nombres entiers. \n x :{item.x} y :{item.y}')
                 print('Erreur : les valeurs x et y doivent être des nombres entiers.')
-        else:
-            print(f'Type inattendu: {type(textItem)}, {textItem}')
+            

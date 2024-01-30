@@ -54,14 +54,14 @@ class ImageController:
             texte, ok = QInputDialog.getText(None, 'Ajouter Texte', 'Entrer votre texte :')
             if ok:
                 textItem = TextUniqueItem(texte, 20, 20)
-                self.mainWindow.imageViewActif.ajouterTextItem(textItem)
+                self.mainWindow.imageViewActif.ajouterItem(textItem)
                 self.mainWindow.itemWidget.ajouterItemVersListe(textItem) 
     
     def onImageAjout(self):
         if self.mainWindow.imageViewActif:
-            imagePath = QFileDialog.getOpenFileName(None, "Sélectionner une image", "", "Images (*.png *.jpg *.jpeg)")[0]
+            imagePath = QFileDialog.getOpenFileName(None, 'Sélectionner une image', '', 'Images (*.png *.jpg *.jpeg)')[0]
             if imagePath:
                 x, y, width, height = 20, 20, 100, 100  # Valeurs fixes pour l'instant
                 imageItem = ImageUniqueItem(imagePath, x, y, width, height)
-                self.mainWindow.imageViewActif.ajouterTextItem(imageItem)
+                self.mainWindow.imageViewActif.ajouterItem(imageItem)
                 self.mainWindow.itemWidget.ajouterItemVersListe(imageItem)

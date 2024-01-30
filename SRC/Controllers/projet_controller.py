@@ -2,7 +2,7 @@ import os
 import time
 from PySide6.QtWidgets import QFileDialog, QApplication, QTabBar, QMessageBox, QLineEdit
 from PySide6.QtCore import Qt, QObject
-from PySide6.QtGui import QImage, QPainter, QFont
+from PySide6.QtGui import QImage, QPainter, QFont, QPixmap
 from Views.image_view import ImageView
 from Views.dialogbox.progressbar import ProgressBar
 from Models.text_item import TextColonneteItem, TextUniqueItem, ImageUniqueItem
@@ -20,7 +20,7 @@ class ProjetController(QObject):
         self.mainWindow.imageViewActif = imageView
 
     def exporterProjet(self, imageView):
-        if imageView is None or not imageView.textItems:
+        if imageView is None or not imageView.items:
             return
 
         dossier = QFileDialog.getExistingDirectory(None, 'Sélectionner un dossier d\'export')
@@ -28,9 +28,9 @@ class ProjetController(QObject):
             return
         
         # Séparer les TextColonneteItem et les TextUniqueItem
-        imageUniqueItems = [item for item in imageView.imageItems if isinstance(item, ImageUniqueItem)]
-        textColonneteItems = [item for item in imageView.textItems if isinstance(item, TextColonneteItem)]
-        textUniqueItems = [item for item in imageView.textItems if isinstance(item, TextUniqueItem)]
+        imageUniqueItems = [item for item in imageView.items if isinstance(item, ImageUniqueItem)]
+        textColonneteItems = [item for item in imageView.items if isinstance(item, TextColonneteItem)]
+        textUniqueItems = [item for item in imageView.items if isinstance(item, TextUniqueItem)]
 
         # Déterminer le nombre maximal de lignes parmi les TextColonneteItem
         nombreLignes = max(len(item.text) for item in textColonneteItems) if textColonneteItems else 1
@@ -45,22 +45,26 @@ class ProjetController(QObject):
         if not os.path.exists(dossierFinal):
             os.makedirs(dossierFinal)
 
-            for numLigne in range(nombreLignes):
-                    image = QImage(tailleImage, QImage.Format_ARGB32)
-                    image.fill(Qt.transparent)
-                    painter = QPainter(image)
+        for numLigne in range(nombreLignes):
+            image = QImage(tailleImage, QImage.Format_ARGB32)
+            image.fill(Qt.white)
+            painter = QPainter(image)
 
             # Dessiner les TextColonneteItem
-            for textItem in textColonneteItems:
-                if numLigne < len(textItem.text):
-                    ligne = textItem.text[numLigne]
-                    painter.setFont(QFont(textItem.font, textItem.fontSize))
-                    painter.drawText(textItem.x, textItem.y, ligne)
+            for item in textColonneteItems:
+                if numLigne < len(item.text):
+                    ligne = item.text[numLigne]
+                    painter.setFont(QFont(item.font, item.fontSize))
+                    painter.drawText(item.x, item.y, ligne)
 
             # Dessiner les TextUniqueItem sur chaque image
-            for textItem in textUniqueItems:
-                painter.setFont(QFont(textItem.font, textItem.fontSize))
-                painter.drawText(textItem.x, textItem.y, textItem.nom)
+            for item in textUniqueItems:
+                painter.setFont(QFont(item.font, item.fontSize))
+                painter.drawText(item.x, item.y, item.nom)
+
+            for item in imageUniqueItems:
+                imageToDraw = QPixmap(item.imagePath)  # Créer un QPixmap à partir du chemin
+                painter.drawPixmap(item.x, item.y, item.height, item.width, imageToDraw)
 
             painter.end()
 
