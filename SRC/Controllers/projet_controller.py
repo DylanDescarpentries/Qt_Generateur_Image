@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt, QObject
 from PySide6.QtGui import QImage, QPainter, QFont, QPixmap, QPen, QColor
 from Views.image_view import ImageView
 from Views.dialogbox.progressbar import ProgressBar
-from Models.text_item import TextColonneteItem, TextUniqueItem, ImageUniqueItem
+from Models.text_item import TextColonneItem, TextUniqueItem, ImageUniqueItem
 
 class ProjetController(QObject):
     def __init__(self, mainWindow, tabWidget):
@@ -13,7 +13,7 @@ class ProjetController(QObject):
         self.tabWidget = tabWidget
 
     def creerNouveauProjet(self, largeur, hauteur, tabTitle='Sans Titre'):
-        imageView = ImageView(self.mainWindow, imageWidth=largeur, imageHeight=hauteur)
+        imageView = ImageView(self.mainWindow, largeur, imageHeight=hauteur)
         imageView.creerImageVide(largeur, hauteur)
 
         scrollArea = self.creerScroll(imageView)
@@ -29,70 +29,98 @@ class ProjetController(QObject):
         return scrollArea
 
     def exporterProjet(self, imageView):
-        if imageView is None or not imageView.items:
+        if not self.validerImageView(imageView):
             return
 
+        dossierExport = self.selectionnerDossierExport()
+        if not dossierExport:
+            return
+
+        self.preparerExport(imageView, dossierExport)
+
+    def validerImageView(self, imageView):
+        if imageView is None or not imageView.items:
+            QMessageBox.warning(None, 'Attention', 'Aucune image à exporter ou aucun élément de texte ajouté.')
+            return False
+        return True
+
+    def selectionnerDossierExport(self):
         dossier = QFileDialog.getExistingDirectory(None, 'Sélectionner un dossier d\'export')
         if not dossier:
-            return
-        
-        # Séparer les TextColonneteItem et les TextUniqueItem
-        imageUniqueItems = [item for item in imageView.items if isinstance(item, ImageUniqueItem)]
-        textColonneteItems = [item for item in imageView.items if isinstance(item, TextColonneteItem)]
-        textUniqueItems = [item for item in imageView.items if isinstance(item, TextUniqueItem)]
+            return None
+        dossierFinal = os.path.join(dossier, 'ProjetExport')
+        if not os.path.exists(dossierFinal):
+            os.makedirs(dossierFinal)
+        return dossierFinal
 
-        # Déterminer le nombre maximal de lignes parmi les TextColonneteItem
-        nombreLignes = max(len(item.text) for item in textColonneteItems) if textColonneteItems else 1
-
+    def preparerExport(self, imageView, dossierExport):
+        textColonneteItems, textUniqueItems, imageUniqueItems = self.classifierItems(imageView)
+        nombreLignes = self.determinerNombreLignes(textColonneteItems)
         tailleImage = imageView.imageLabel.pixmap().size()
+        progressBar = self.creerProgressBar(nombreLignes)
+        
+        self.effectuerExport(textColonneteItems, textUniqueItems, imageUniqueItems, nombreLignes, tailleImage, dossierExport, progressBar)
+
+    def classifierItems(self, imageView):
+        imageUniqueItems = [item for item in imageView.items if isinstance(item, ImageUniqueItem)]
+        textColonneteItems = [item for item in imageView.items if isinstance(item, TextColonneItem)]
+        textUniqueItems = [item for item in imageView.items if isinstance(item, TextUniqueItem)]
+        return textColonneteItems, textUniqueItems, imageUniqueItems
+
+    def determinerNombreLignes(self, textColonneteItems):
+        return max(len(item.text) for item in textColonneteItems) if textColonneteItems else 1
+
+    def creerProgressBar(self, nombreLignes):
         progressBar = ProgressBar(nombreLignes)
         progressBar.show()
+        return progressBar
+
+    def effectuerExport(self, textColonneteItems, textUniqueItems, imageUniqueItems, nombreLignes, tailleImage, dossierExport, progressBar):
         current_image = 0
-
-        dossierExport = 'ProjetExport'
-        dossierFinal = os.path.join(dossier, dossierExport)
-        if not os.path.exists(dossierFinal):
-            os.makedirs(dossierFinal) 
-
         for numLigne in range(nombreLignes):
             image = QImage(tailleImage, QImage.Format_ARGB32)
             image.fill(Qt.white)
             painter = QPainter(image)
-
-            # Dessiner les TextColonneteItem
-            for item in imageUniqueItems:
-                imageToDraw = QPixmap(item.imagePath)  # Créer un QPixmap à partir du chemin
-                painter.drawPixmap(item.x, item.y, item.largeur, item.hauteur, imageToDraw)
-
-            for item in textColonneteItems:
-                if numLigne < len(item.text):
-                    ligne = item.text[numLigne]
-                    painter.setFont(QFont(item.font, item.fontSize))
-                    color = QColor(item.fontColor)
-                    pen = QPen(color)
-                    painter.setPen(pen)
-                    painter.drawText(item.x, item.y, ligne)
-
-            # Dessiner les TextUniqueItem sur chaque image
-            for item in textUniqueItems:
-                painter.setFont(QFont(item.font, item.fontSize))
-                color = QColor(item.fontColor)
-                pen = QPen(color)
-                painter.setPen(pen)
-                painter.drawText(item.x, item.y, item.nom)
-
-
+            self.dessinerItems(painter, imageUniqueItems, textColonneteItems, textUniqueItems, numLigne)
             painter.end()
 
-            nomFichier = os.path.join(dossierFinal, f'ligne_{numLigne}.png')
-            image.save(nomFichier)
+            self.sauvegarderImage(image, dossierExport, numLigne)
+            self.mettreAJourProgressBar(progressBar, current_image, numLigne)
             current_image += 1
-            time.sleep(0.3)
-            progressBar.update_progress(current_image, f'Exportation en cours : image_{numLigne}.png')
-            QApplication.processEvents()
 
         progressBar.close()
-        QMessageBox.information(None, 'Exportation Status', 'Exportation Terminée !')
+
+    def dessinerItems(self, painter, imageUniqueItems, textColonneteItems, textUniqueItems, numLigne):
+        # Dessiner les ImageUniqueItem
+        for item in imageUniqueItems:
+            imageToDraw = QPixmap(item.imagePath)
+            painter.drawPixmap(item.x, item.y, item.largeur, item.hauteur, imageToDraw)
+
+        # Dessiner les TextColonneteItem
+        for item in textColonneteItems:
+            if numLigne < len(item.text):
+                ligne = item.text[numLigne]
+                self.configurerStyloEtTexte(painter, item, ligne)
+
+        # Dessiner les TextUniqueItem
+        for item in textUniqueItems:
+            self.configurerStyloEtTexte(painter, item, item.nom)
+
+    def configurerStyloEtTexte(self, painter, item, texte):
+        painter.setFont(QFont(item.font, item.fontSize))
+        color = QColor(item.fontColor)
+        pen = QPen(color)
+        painter.setPen(pen)
+        painter.drawText(item.x, item.y, texte)
+
+    def sauvegarderImage(self, image, dossierExport, numLigne):
+        nomFichier = os.path.join(dossierExport, f'ligne_{numLigne}.png')
+        image.save(nomFichier)
+
+    def mettreAJourProgressBar(self, progressBar, current_image, numLigne):
+        progressBar.update_progress(current_image + 1, f'Exportation en cours : image_{numLigne}.png')
+        QApplication.processEvents()
+        time.sleep(0.1)
 
 class EditableTabBar(QTabBar):
     def __init__(self, parent=None):

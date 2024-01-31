@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout,  QDockWidget, QTabWidget, QMessageBox
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
 from Views.barreMenu import MenuBarre
 from Views.data_view import DataView
 from Views.proprietesBox import ProprietesWidget
@@ -11,7 +10,15 @@ from Controllers.projet_controller import ProjetController
 from Controllers.projet_controller import EditableTabBar
 from Controllers.ui_controller import UiController
 from Controllers.image_controller import ImageController
-from Models.text_item import TextColonneteItem
+from Models.text_item import TextColonneItem
+
+class MainWindow(QMainWindow):
+    '''
+    Fenêtre principale de l'application Générateur de fiches.
+
+    Intègre une interface utilisateur permettant de créer, afficher et exporter
+    des images générées à partir de données pandas DataFrame.
+    '''
 
 class MainWindow(QMainWindow):
     '''
@@ -45,6 +52,8 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(central_widget)
         self.tabWidget = QTabWidget(self)
         layout.addWidget(self.tabWidget)        
+        self.tabWidget.setTabBar(EditableTabBar())
+        self.tabWidget.setTabsClosable(True)
 
     def _setupControllers(self):
         self.dataController = DataController()
@@ -52,17 +61,15 @@ class MainWindow(QMainWindow):
         self.itemWidget = ItemWidget(self)
         self.imageController = ImageController(self, self.itemWidget)
         self.proprietesWidget = ProprietesWidget(imageController=self.imageController, parent=self)
-        self.tabWidget.setTabBar(EditableTabBar())
-        self.tabWidget.setTabsClosable(True)
 
     def _setupDockWidgets(self):
-        self.boiteOutils = BoiteOutils(self, self.dataController, self.imageController)
-        self.boiteOutilsDockWidget = self._createLeftDockWidget('Boîte à outils', self.boiteOutils)
-        self.dataView = DataView(self)
-        self.dataDockWidget = self._createLeftDockWidget('Tableau', self.dataView)
-        self.proprietesDockWidget = self._createRightDockWidget('Propriétés', self.proprietesWidget)
-        self.itemDockWidget = self._createRightDockWidget('Items', self.itemWidget)
-        self.uiController = UiController(self.tabWidget, self.dataDockWidget, self.proprietesDockWidget, self.itemWidget, self.itemDockWidget, self.boiteOutilsDockWidget)
+            self.boiteOutils = BoiteOutils(self, self.dataController, self.imageController)
+            self.boiteOutilsDockWidget = self._createLeftDockWidget('Boîte à outils', self.boiteOutils)
+            self.dataView = DataView(self, self.dataController)
+            self.dataDockWidget = self._createLeftDockWidget('Tableau', self.dataView)
+            self.proprietesDockWidget = self._createRightDockWidget('Propriétés', self.proprietesWidget)
+            self.itemDockWidget = self._createRightDockWidget('Items', self.itemWidget)
+            self.uiController = UiController(self.tabWidget, self.dataDockWidget, self.proprietesDockWidget, self.itemWidget, self.itemDockWidget, self.boiteOutilsDockWidget)
 
     def _setupMenuBar(self):
         self.menuBarre = MenuBarre(self, self.tabWidget, self.dataController, self.projetController)
@@ -70,7 +77,7 @@ class MainWindow(QMainWindow):
 
     def _connectSignals(self):
         self.dataView.colonneAjoutee.connect(self.onColonneAjoutee)
-        self.dataController.fileImported.connect(self.dataView.load_data)
+        self.dataController.fichierImporte.connect(self.dataView.load_data)
         self.tabWidget.currentChanged.connect(self.uiController.ongletChange)
         self.tabWidget.tabCloseRequested.connect(self.uiController.fermerOnglet)
         self.itemWidget.itemSelected.connect(self.onItemSelected)     
@@ -104,10 +111,14 @@ class MainWindow(QMainWindow):
             self.imageViewActif.ajouterItem(textItem)
 
     def onItemSelected(self, item):
-        if isinstance(item, TextColonneteItem):
+        if isinstance(item, TextColonneItem):
             try:
                 self.proprietesWidget.setXandY(item.x, item.y)
             except ValueError:
                 QMessageBox.critical(None, 'Erreur Valeur', f'Erreur : les valeurs \'x\' et \'y\' doivent être des nombres entiers. \n x :{item.x} y :{item.y}')
                 print('Erreur : les valeurs x et y doivent être des nombres entiers.')
-            
+    
+    def supprimerItem(self, itemToDelete):
+        if itemToDelete in self.items:
+            self.items.remove(itemToDelete)
+            self.mettreAJourImage()

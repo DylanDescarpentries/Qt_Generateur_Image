@@ -1,6 +1,6 @@
 import os
 
-class TextColonneteItem:
+class TextColonneItem:
     def __init__(self, nom, text, x=20, y=20, font='Arial', fontSize=12, fontColor='black'):
         self.nom = nom
         self.text = text

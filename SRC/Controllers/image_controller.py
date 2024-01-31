@@ -86,3 +86,4 @@ class ImageController:
                 imageItem = ImageUniqueItem(imagePath, x, y, width, height)
                 self.mainWindow.imageViewActif.ajouterItem(imageItem)
                 self.mainWindow.itemWidget.ajouterItemVersListe(imageItem)
+

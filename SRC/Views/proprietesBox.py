@@ -13,15 +13,15 @@ class ProprietesWidget(QWidget):
 
     def __init__(self, imageController, parent=None):
         super().__init__(parent)
-        self.layout = QVBoxLayout(self)
         self.imageController = imageController
+        self.layout = QVBoxLayout(self)
 
         self.setupParametreGroup()
         self.setupTexteGroup()
 
         # Ajout des groupes au layout principal
-        self.layout.addWidget(self.createCollapsibleGroup(self.parametreContainer, 'Parametres'))
-        self.layout.addWidget(self.createCollapsibleGroup(self.texteContainer, 'Texte'))
+        self.layout.addWidget(self.creerPliableGroupe(self.parametreContainer, 'Parametres'))
+        self.layout.addWidget(self.creerPliableGroupe(self.texteContainer, 'Texte'))
 
     def setupParametreGroup(self):
         self.parametreContainer = QGroupBox()
@@ -71,7 +71,7 @@ class ProprietesWidget(QWidget):
         self.ypositionsEdit.valueChanged.connect(self.yChanged.emit)
 
     def setupTexteGroup(self):
-        self.texteContainer = QGroupBox("Texte")
+        self.texteContainer = QGroupBox()
         self.texteLayout = QVBoxLayout(self.texteContainer)
 
         self.setupFontComboBox()
@@ -112,15 +112,17 @@ class ProprietesWidget(QWidget):
             # Utilisez la couleur sélectionnée ici
             self.fontColorChanged.emit(color.name())
 
-    def createCollapsibleGroup(self, groupBox, title):
+    def creerPliableGroupe(self, groupBox, title):
         container = QWidget()
         containerLayout = QVBoxLayout(container)
         toggleButton = QPushButton(title)
+        toggleButton.setStyleSheet("text-align: left;")
         toggleButton.setCheckable(True)
         toggleButton.setChecked(True)
         toggleButton.clicked.connect(lambda checked: groupBox.setVisible(checked))
         containerLayout.addWidget(toggleButton)
         containerLayout.addWidget(groupBox)
+        
         return container
 
     def setXandY(self, x, y):

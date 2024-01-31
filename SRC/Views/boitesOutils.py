@@ -18,7 +18,7 @@ class BoiteOutils(QWidget):
         self.layout.addWidget(self.ImageAjout, 1, 1)
 
         # Connexion du signal clicked au slot importFile
-        self.tableauImport.clicked.connect(self.dataController.importFile)
+        self.tableauImport.clicked.connect(self.dataController.importFichier)
         self.textAjout.clicked.connect(self.imageController.onTextAjout)
         self.ImageAjout.clicked.connect(self.imageController.onImageAjout)
 

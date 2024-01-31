@@ -2,7 +2,7 @@ import os
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
 from PySide6.QtGui import QPixmap, QPainter, QFont, QPen, QColor
 from PySide6.QtCore import Qt, Signal
-from Models.text_item import TextColonneteItem, ImageUniqueItem
+from Models.text_item import TextColonneItem, ImageUniqueItem
 
 '''///////////////////////////////////////////////////////////////////////////
     Widget pour afficher et manipuler des images dans le Générateur de fiches.
@@ -11,7 +11,7 @@ from Models.text_item import TextColonneteItem, ImageUniqueItem
     textuelles et d'exporter l'image résultante.
 ////////////////////////////////////////////////////////////////////////////'''
 class ImageView(QWidget):
-    itemAdded = Signal(TextColonneteItem)
+    itemAdded = Signal(TextColonneItem)
 
     def __init__(self, parent=None, imageWidth=800, imageHeight=600):
         '''

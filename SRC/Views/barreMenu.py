@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMenuBar, QApplication, QMessageBox
+from PySide6.QtWidgets import QMenuBar, QApplication, QMessageBox, QMenu
 from PySide6.QtGui import QAction
 from Views.dialogbox.dialogNouveauProjet import DialogNouveauProjet
 
@@ -31,7 +31,7 @@ class MenuBarre(QMenuBar):
         #importer un fichier
         importFileAction = QAction('Importer un fichier', self)
         importFileAction.setShortcut('Ctrl+O')
-        importFileAction.triggered.connect(self.dataController.importFile)
+        importFileAction.triggered.connect(self.dataController.importFichier)
 
         # Exporter projet
         exporterProjetAction = QAction('Exporter projet', self)
@@ -58,25 +58,48 @@ class MenuBarre(QMenuBar):
 
     def creerAffichageMenu(self):
         affichageMenu = self.addMenu('Affichage')
+        vuesSubMenu = QMenu('Vues', self)
+        themesSubMenu = QMenu('Themes', self)
+
+        affichageMenu.addMenu(vuesSubMenu)
+        affichageMenu.addMenu(themesSubMenu)
+
         afficherItemAction = QAction('Afficher Items', self)
         afficherProprieteAction = QAction('Propriétés', self)
         afficherDataViewAction = QAction('Tableau', self)
         afficherBoitOutilsAction = QAction('Boite Outils', self)
+
+        themeWindows = QAction('Windows', self)
+        themeWindowsVista = QAction('Windows Vista', self)
+        themeFusion = QAction('Fusion', self)
 
         afficherItemAction.setShortcut('I')
         afficherDataViewAction.setShortcut('T')
         afficherProprieteAction.setShortcut('P')
         afficherBoitOutilsAction.setShortcut('B')
 
+
         afficherBoitOutilsAction.triggered.connect(self.mainWindow.uiController.toggleBoiteOutils)
         afficherItemAction.triggered.connect(self.mainWindow.uiController.toggleItem)
         afficherProprieteAction.triggered.connect(self.mainWindow.uiController.toggleProprietes)
         afficherDataViewAction.triggered.connect(self.mainWindow.uiController.toggleDataView)
 
-        affichageMenu.addAction(afficherBoitOutilsAction)
-        affichageMenu.addAction(afficherItemAction)
-        affichageMenu.addAction(afficherProprieteAction)
-        affichageMenu.addAction(afficherDataViewAction)
+        themeWindows.triggered.connect(self.mainWindow.uiController.changeThemeVersWindows)
+        themeWindowsVista.triggered.connect(self.mainWindow.uiController.changeThemeVersWindowsVista)
+        themeFusion.triggered.connect(self.mainWindow.uiController.changeThemeVersFusion)
+
+
+
+
+
+        vuesSubMenu.addAction(afficherBoitOutilsAction)
+        vuesSubMenu.addAction(afficherItemAction)
+        vuesSubMenu.addAction(afficherProprieteAction)
+        vuesSubMenu.addAction(afficherDataViewAction)
+
+        themesSubMenu.addAction(themeWindows)
+        themesSubMenu.addAction(themeWindowsVista)
+        themesSubMenu.addAction(themeFusion)
 
         #Ajouter les actions
         affichageMenu.addAction

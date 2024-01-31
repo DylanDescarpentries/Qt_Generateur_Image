@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QTableView, QMenu
 from PySide6.QtCore import Qt, Signal
 from Models.data import PandasTableModel
-from Models.text_item import TextColonneteItem
+from Models.text_item import TextColonneItem
 import pandas as pd
 
 class DataView(QWidget):
@@ -9,9 +9,9 @@ class DataView(QWidget):
     DataView est un widget personnalisé qui affiche un DataFrame pandas dans un QTableView.
     Permet l'interaction utilisateur pour sélectionner des données à inclure dans le projet d'image.
     '''
-    colonneAjoutee = Signal(TextColonneteItem)
+    colonneAjoutee = Signal(TextColonneItem)
 
-    def __init__(self, mainWindow):
+    def __init__(self, mainWindow, dataController):
         '''
         Initialisation de DataView.
 
@@ -19,6 +19,7 @@ class DataView(QWidget):
         '''
         super().__init__()
         self.mainWindow = mainWindow
+        self.dataController = dataController
         self.setupUI()
 
     def setupUI(self):
@@ -37,7 +38,7 @@ class DataView(QWidget):
         '''
         tableView = QTableView(self)
         tableView.setContextMenuPolicy(Qt.CustomContextMenu)
-        tableView.customContextMenuRequested.connect(self.openContextMenu)
+        tableView.customContextMenuRequested.connect(self.ouvrirContextMenu)
         tableView.setModel(PandasTableModel(pd.DataFrame()))
         return tableView
 
@@ -50,17 +51,20 @@ class DataView(QWidget):
         self.tableView.model().set_data(dataFrame)
 
 
-    def openContextMenu(self, position):
+    def ouvrirContextMenu(self, position):
         '''
         Ouvre un menu contextuel à la position spécifiée, offrant des options pour manipuler les données.
 
         :param position: La position dans le widget où le menu contextuel doit être ouvert.
         '''
         contextMenu = QMenu(self)
-        addAction = contextMenu.addAction('Ajouter la colonne au projet')
+        ajouterColonneAction = contextMenu.addAction('Ajouter la colonne au projet')
+        importTableauAction = contextMenu.addAction('Importer un tableau')
         action = contextMenu.exec(self.tableView.mapToGlobal(position))
-        if action == addAction:
+        if action == ajouterColonneAction:
             self.ajouterColonneAuProjet()
+        if action == importTableauAction:
+            self.dataController.importFichier()
 
     def ajouterColonneAuProjet(self):
         currentIndex = self.tableView.currentIndex()
@@ -74,7 +78,7 @@ class DataView(QWidget):
                 return
 
             # Créer un TextItem avec la liste des données
-            textItem = TextColonneteItem(nomColonne, donnees) 
+            textItem = TextColonneItem(nomColonne, donnees) 
 
             # Émettre le signal avec l'objet TextItem
             self.colonneAjoutee.emit(textItem)

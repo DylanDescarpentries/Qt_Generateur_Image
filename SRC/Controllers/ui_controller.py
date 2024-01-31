@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QScrollArea
+from PySide6.QtWidgets import QScrollArea, QApplication
 from Views.image_view import ImageView
 class UiController:
     def __init__(self,tabWidget, dataViewDockWidget, proprieteDockWidget, itemWidget, itemDockWidget, boiteOutilsDockWidget):
@@ -35,6 +35,15 @@ class UiController:
         :param index: L'index de l'onglet à fermer.
         '''
         self.tabWidget.removeTab(index)
+
+    def changeThemeVersWindows(self):
+        QApplication.setStyle('Windows')
+
+    def changeThemeVersFusion(self):
+        QApplication.setStyle('Fusion')
+
+    def changeThemeVersWindowsVista(self):
+        QApplication.setStyle('windowsvista')
 
     def ongletChange(self, index):
     # Obtient le widget actuel dans l'onglet, qui est maintenant un QScrollArea
