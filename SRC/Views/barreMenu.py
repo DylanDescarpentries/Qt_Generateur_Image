@@ -4,7 +4,9 @@ from Views.dialogbox.dialogNouveauProjet import DialogNouveauProjet
 
 
 class MenuBarre(QMenuBar):
-    def __init__(self, mainWindow, tabWidget=None, dataController=None, projetController=None):
+    def __init__(
+        self, mainWindow, tabWidget=None, dataController=None, projetController=None
+    ) -> None:
         super().__init__()
         self.tabWidget = tabWidget
         self.mainWindow = mainWindow
@@ -12,34 +14,34 @@ class MenuBarre(QMenuBar):
         self.projetController = projetController
         self.creerMenus()
 
-    # Ajouter les menus creer 
-    def creerMenus(self):
+    # Ajouter les menus creer
+    def creerMenus(self) -> None:
         self.creerFileMenu()
         self.creerEditMenu()
         self.creerAffichageMenu()
 
     # Création du menu Fichier
-    def creerFileMenu(self):
-        #Ajouter le menu
-        fileMenu = self.addMenu('Fichier')
+    def creerFileMenu(self) -> None:
+        # Ajouter le menu
+        fileMenu = self.addMenu("Fichier")
 
         # Creer un nouveau projet
-        creerProjetAction = QAction('Nouveau projet', self)
-        creerProjetAction.setShortcut('Ctrl+N')
+        creerProjetAction = QAction("Nouveau projet", self)
+        creerProjetAction.setShortcut("Ctrl+N")
         creerProjetAction.triggered.connect(self.nouveauProjet)
 
-        #importer un fichier
-        importFileAction = QAction('Importer un fichier', self)
-        importFileAction.setShortcut('Ctrl+O')
+        # importer un fichier
+        importFileAction = QAction("Importer un fichier", self)
+        importFileAction.setShortcut("Ctrl+O")
         importFileAction.triggered.connect(self.dataController.importFichier)
 
         # Exporter projet
-        exporterProjetAction = QAction('Exporter projet', self)
+        exporterProjetAction = QAction("Exporter projet", self)
         exporterProjetAction.triggered.connect(self.exporterProjet)
 
         # Quitter l'application
-        exitAction = QAction('Quitter', self)
-        exitAction.setShortcut('alt+f4')
+        exitAction = QAction("Quitter", self)
+        exitAction.setShortcut("alt+f4")
         exitAction.triggered.connect(QApplication.quit)
 
         # Ajouter les actions
@@ -51,46 +53,53 @@ class MenuBarre(QMenuBar):
         fileMenu.addAction(exitAction)
 
         return fileMenu
-    
+
     # Création du menu Edition
-    def creerEditMenu(self):
-        editMenu = self.addMenu('Edition')
+    def creerEditMenu(self) -> None:
+        editMenu = self.addMenu("Edition")
 
     def creerAffichageMenu(self):
-        affichageMenu = self.addMenu('Affichage')
-        vuesSubMenu = QMenu('Vues', self)
-        themesSubMenu = QMenu('Themes', self)
+        affichageMenu = self.addMenu("Affichage")
+        vuesSubMenu = QMenu("Vues", self)
+        themesSubMenu = QMenu("Themes", self)
 
         affichageMenu.addMenu(vuesSubMenu)
         affichageMenu.addMenu(themesSubMenu)
 
-        afficherItemAction = QAction('Afficher Items', self)
-        afficherProprieteAction = QAction('Propriétés', self)
-        afficherDataViewAction = QAction('Tableau', self)
-        afficherBoitOutilsAction = QAction('Boite Outils', self)
+        afficherItemAction = QAction("Afficher Items", self)
+        afficherProprieteAction = QAction("Propriétés", self)
+        afficherDataViewAction = QAction("Tableau", self)
+        afficherBoitOutilsAction = QAction("Boite Outils", self)
 
-        themeWindows = QAction('Windows', self)
-        themeWindowsVista = QAction('Windows Vista', self)
-        themeFusion = QAction('Fusion', self)
+        themeWindows = QAction("Windows", self)
+        themeWindowsVista = QAction("Windows Vista", self)
+        themeFusion = QAction("Fusion", self)
 
-        afficherItemAction.setShortcut('I')
-        afficherDataViewAction.setShortcut('T')
-        afficherProprieteAction.setShortcut('P')
-        afficherBoitOutilsAction.setShortcut('B')
+        afficherItemAction.setShortcut("I")
+        afficherDataViewAction.setShortcut("T")
+        afficherProprieteAction.setShortcut("P")
+        afficherBoitOutilsAction.setShortcut("B")
 
-
-        afficherBoitOutilsAction.triggered.connect(self.mainWindow.uiController.toggleBoiteOutils)
+        afficherBoitOutilsAction.triggered.connect(
+            self.mainWindow.uiController.toggleBoiteOutils
+        )
         afficherItemAction.triggered.connect(self.mainWindow.uiController.toggleItem)
-        afficherProprieteAction.triggered.connect(self.mainWindow.uiController.toggleProprietes)
-        afficherDataViewAction.triggered.connect(self.mainWindow.uiController.toggleDataView)
+        afficherProprieteAction.triggered.connect(
+            self.mainWindow.uiController.toggleProprietes
+        )
+        afficherDataViewAction.triggered.connect(
+            self.mainWindow.uiController.toggleDataView
+        )
 
-        themeWindows.triggered.connect(self.mainWindow.uiController.changeThemeVersWindows)
-        themeWindowsVista.triggered.connect(self.mainWindow.uiController.changeThemeVersWindowsVista)
-        themeFusion.triggered.connect(self.mainWindow.uiController.changeThemeVersFusion)
-
-
-
-
+        themeWindows.triggered.connect(
+            self.mainWindow.uiController.changeThemeVersWindows
+        )
+        themeWindowsVista.triggered.connect(
+            self.mainWindow.uiController.changeThemeVersWindowsVista
+        )
+        themeFusion.triggered.connect(
+            self.mainWindow.uiController.changeThemeVersFusion
+        )
 
         vuesSubMenu.addAction(afficherBoitOutilsAction)
         vuesSubMenu.addAction(afficherItemAction)
@@ -101,10 +110,10 @@ class MenuBarre(QMenuBar):
         themesSubMenu.addAction(themeWindowsVista)
         themesSubMenu.addAction(themeFusion)
 
-        #Ajouter les actions
+        # Ajouter les actions
         affichageMenu.addAction
 
-    def nouveauProjet(self):
+    def nouveauProjet(self) -> None:
         dialog = DialogNouveauProjet(self)
         if dialog.exec():
             largeur, hauteur = dialog.getDimensions()
@@ -114,11 +123,13 @@ class MenuBarre(QMenuBar):
                 self.projetController.creerNouveauProjet(largeur, hauteur)
             except ValueError:
                 pass
-    
-    def exporterProjet(self):
-        reply = QMessageBox.question(None, 'Exporter le projet', 'Voulez-vous Exporter le projet ?', QMessageBox.Yes | QMessageBox.No)
+
+    def exporterProjet(self) -> None:
+        reply = QMessageBox.question(
+            None,
+            "Exporter le projet",
+            "Voulez-vous Exporter le projet ?",
+            QMessageBox.Yes | QMessageBox.No,
+        )
         if reply == QMessageBox.Yes:
-            if hasattr(self.mainWindow, 'imageViewActif') and self.mainWindow.imageViewActif is not None:
-                self.projetController.exporterProjet(self.mainWindow.imageViewActif)
-            else:
-                QMessageBox.information(None, 'Évènement Inattendu !', 'Aucun projet à exporter !')
+            self.projetController.exporterProjet(self.mainWindow.imageViewActif)

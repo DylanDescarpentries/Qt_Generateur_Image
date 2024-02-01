@@ -1,7 +1,8 @@
-from PySide6.QtWidgets import QPushButton, QGridLayout, QWidget, QListWidgetItem
+from PySide6.QtWidgets import QPushButton, QGridLayout, QWidget
+
 
 class BoiteOutils(QWidget):
-    def __init__(self, mainWindow, dataController, imageController):
+    def __init__(self, mainWindow, dataController, imageController) -> None:
         super().__init__()
         self.mainWindow = mainWindow
         self.dataController = dataController
@@ -9,9 +10,9 @@ class BoiteOutils(QWidget):
         self.layout = QGridLayout(self)
 
         # Création des boutons
-        self.tableauImport = QPushButton('Importer Tableau')
-        self.textAjout = QPushButton('Ajouter un texte')
-        self.ImageAjout = QPushButton('Ajouter Image')
+        self.tableauImport = QPushButton("Importer Tableau")
+        self.textAjout = QPushButton("Ajouter un texte")
+        self.ImageAjout = QPushButton("Ajouter Image")
         # Ajout des boutons au layout en spécifiant la ligne et la colonne
         self.layout.addWidget(self.tableauImport, 0, 0)
         self.layout.addWidget(self.textAjout, 1, 0)
@@ -21,4 +22,3 @@ class BoiteOutils(QWidget):
         self.tableauImport.clicked.connect(self.dataController.importFichier)
         self.textAjout.clicked.connect(self.imageController.onTextAjout)
         self.ImageAjout.clicked.connect(self.imageController.onImageAjout)
-

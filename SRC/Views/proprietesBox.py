@@ -1,6 +1,18 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, QPushButton, QSpinBox, QLabel, QComboBox, QColorDialog, QFileDialog
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QGroupBox,
+    QPushButton,
+    QSpinBox,
+    QLabel,
+    QComboBox,
+    QColorDialog,
+    QFileDialog,
+)
 from PySide6.QtGui import QFontDatabase, QColor
 from PySide6.QtCore import Signal
+
 
 class ProprietesWidget(QWidget):
     xChanged = Signal(int)
@@ -11,7 +23,7 @@ class ProprietesWidget(QWidget):
     hauteurChanged = Signal(int)
     fontColorChanged = Signal(str)
 
-    def __init__(self, imageController, parent=None):
+    def __init__(self, imageController, parent=None) -> None:
         super().__init__(parent)
         self.imageController = imageController
         self.layout = QVBoxLayout(self)
@@ -20,10 +32,12 @@ class ProprietesWidget(QWidget):
         self.setupTexteGroup()
 
         # Ajout des groupes au layout principal
-        self.layout.addWidget(self.creerPliableGroupe(self.parametreContainer, 'Parametres'))
-        self.layout.addWidget(self.creerPliableGroupe(self.texteContainer, 'Texte'))
+        self.layout.addWidget(
+            self.creerPliableGroupe(self.parametreContainer, "Parametres")
+        )
+        self.layout.addWidget(self.creerPliableGroupe(self.texteContainer, "Texte"))
 
-    def setupParametreGroup(self):
+    def setupParametreGroup(self) -> None:
         self.parametreContainer = QGroupBox()
         self.parametreLayout = QVBoxLayout(self.parametreContainer)
 
@@ -32,14 +46,14 @@ class ProprietesWidget(QWidget):
 
         self.parametreContainer.setLayout(self.parametreLayout)
 
-    def setupDimensionsWidget(self):
+    def setupDimensionsWidget(self) -> None:
         self.dimensionsWidget = QWidget()
         self.dimensionsLayout = QHBoxLayout(self.dimensionsWidget)
         self.largeurEdit = QSpinBox(self.dimensionsWidget)
         self.hauteurEdit = QSpinBox(self.dimensionsWidget)
-        self.dimensionsLayout.addWidget(QLabel('Largeur:'))
+        self.dimensionsLayout.addWidget(QLabel("Largeur:"))
         self.dimensionsLayout.addWidget(self.largeurEdit)
-        self.dimensionsLayout.addWidget(QLabel('Hauteur:'))
+        self.dimensionsLayout.addWidget(QLabel("Hauteur:"))
         self.dimensionsLayout.addWidget(self.hauteurEdit)
         self.parametreLayout.addWidget(self.dimensionsWidget)
 
@@ -50,7 +64,7 @@ class ProprietesWidget(QWidget):
         self.largeurEdit.valueChanged.connect(self.largeurChanged.emit)
         self.hauteurEdit.valueChanged.connect(self.hauteurChanged.emit)
 
-    def setupPositionsWidget(self):
+    def setupPositionsWidget(self) -> None:
         self.positionsWidget = QWidget()
         self.positionsLayout = QHBoxLayout(self.positionsWidget)
         self.xpositionsEdit = QSpinBox(self.positionsWidget)
@@ -60,9 +74,9 @@ class ProprietesWidget(QWidget):
         self.xpositionsEdit.setMaximum(maxValues)
         self.ypositionsEdit.setMaximum(maxValues)
 
-        self.positionsLayout.addWidget(QLabel('Position X :'))
+        self.positionsLayout.addWidget(QLabel("Position X :"))
         self.positionsLayout.addWidget(self.xpositionsEdit)
-        self.positionsLayout.addWidget(QLabel('Position Y :'))
+        self.positionsLayout.addWidget(QLabel("Position Y :"))
         self.positionsLayout.addWidget(self.ypositionsEdit)
         self.parametreLayout.addWidget(self.positionsWidget)
 
@@ -70,7 +84,7 @@ class ProprietesWidget(QWidget):
         self.xpositionsEdit.valueChanged.connect(self.xChanged.emit)
         self.ypositionsEdit.valueChanged.connect(self.yChanged.emit)
 
-    def setupTexteGroup(self):
+    def setupTexteGroup(self) -> None:
         self.texteContainer = QGroupBox()
         self.texteLayout = QVBoxLayout(self.texteContainer)
 
@@ -81,27 +95,27 @@ class ProprietesWidget(QWidget):
         # Définir le layout pour texteContainer
         self.texteContainer.setLayout(self.texteLayout)
 
-    def setupFontComboBox(self):
+    def setupFontComboBox(self) -> None:
         self.fontEdit = QComboBox(self)
         self.fontEdit.addItems(QFontDatabase().families())
-        self.fontEdit.addItem('Charger une police...')
-        self.texteLayout.addWidget(QLabel('Changer la police :'))
+        self.fontEdit.addItem("Charger une police...")
+        self.texteLayout.addWidget(QLabel("Changer la police :"))
         self.texteLayout.addWidget(self.fontEdit)
         self.fontEdit.currentIndexChanged.connect(self.onFontComboBoxChanged)
         self.fontEdit.currentTextChanged.connect(self.fontStyleChanged.emit)
 
-    def setupFontSizeSpinBox(self):
+    def setupFontSizeSpinBox(self) -> None:
         self.fontSizeEdit = QSpinBox(self)
-        self.texteLayout.addWidget(QLabel('Taille Police :'))
+        self.texteLayout.addWidget(QLabel("Taille Police :"))
         self.texteLayout.addWidget(self.fontSizeEdit)
         self.fontSizeEdit.valueChanged.connect(self.fontSizeChanged.emit)
-    
-    def setupFontColor(self):
-        self.fontColorEdit = QPushButton('Choisir une couleur', self)
+
+    def setupFontColor(self) -> None:
+        self.fontColorEdit = QPushButton("Choisir une couleur", self)
         self.texteLayout.addWidget(self.fontColorEdit)
         self.fontColorEdit.clicked.connect(self.openColorDialog)
 
-    def openColorDialog(self):
+    def openColorDialog(self) -> None:
         # Définir une couleur initiale
         initialColor = QColor(255, 0, 0)
 
@@ -112,7 +126,7 @@ class ProprietesWidget(QWidget):
             # Utilisez la couleur sélectionnée ici
             self.fontColorChanged.emit(color.name())
 
-    def creerPliableGroupe(self, groupBox, title):
+    def creerPliableGroupe(self, groupBox, title: str) -> QWidget:
         container = QWidget()
         containerLayout = QVBoxLayout(container)
         toggleButton = QPushButton(title)
@@ -122,21 +136,23 @@ class ProprietesWidget(QWidget):
         toggleButton.clicked.connect(lambda checked: groupBox.setVisible(checked))
         containerLayout.addWidget(toggleButton)
         containerLayout.addWidget(groupBox)
-        
+
         return container
 
-    def setXandY(self, x, y):
+    def setXandY(self, x: int, y: int) -> None:
         self.xpositionsEdit.setValue(x)
         self.ypositionsEdit.setValue(y)
-    
-    def onFontComboBoxChanged(self, index):
+
+    def onFontComboBoxChanged(self):
         if self.fontEdit.currentText() == "Charger une police...":
             self.loadCustomFont()
         else:
             self.fontStyleChanged.emit(self.fontEdit.currentText())
 
-    def loadCustomFont(self):
-        fontFilePath, _ = QFileDialog.getOpenFileName(self, "Sélectionner une police", "", "Font Files (*.ttf *.otf)")
+    def loadCustomFont(self) -> None:
+        fontFilePath, _ = QFileDialog.getOpenFileName(
+            self, "Sélectionner une police", "", "Font Files (*.ttf *.otf)"
+        )
         if fontFilePath:
             fontId = QFontDatabase.addApplicationFont(fontFilePath)
             if fontId != -1:
