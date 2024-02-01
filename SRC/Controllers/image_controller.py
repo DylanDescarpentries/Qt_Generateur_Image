@@ -4,7 +4,8 @@ Module de contrôle pour la gestion des images dans l'application.
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMessageBox, QInputDialog, QFileDialog
-from Models.text_item import TextUniqueItem, ImageUniqueItem
+from Models.text_item import TextUniqueItem, ImageUniqueItem, FormeGeometriqueItem
+from Views.dialogbox.dialogFormeGeometriqueAjout import DialogFormeGeometriqueAjout
 
 
 class ImageController:
@@ -40,6 +41,12 @@ class ImageController:
         if item:
             item.hauteur = hauteur
             self.mainWindow.imageViewActif.mettreAJourImage()
+    
+    def onRadiusChanged(self, radius: int) -> None:
+        item = self.getSelectedTextItem()
+        if item:
+            item.radius = radius
+            self.mainWindow.imageViewActif.mettreAJourImage()
 
     def onFontStyleChanged(self, font: str) -> None:
         textItem = self.getSelectedTextItem()
@@ -57,6 +64,12 @@ class ImageController:
         textItem = self.getSelectedTextItem()
         if textItem:
             textItem.fontColor = fontColor
+            self.mainWindow.imageViewActif.mettreAJourImage()
+    
+    def onFormColorChanged(self, Color: str) -> None:
+        item = self.getSelectedTextItem()
+        if item:
+            item.color = Color
             self.mainWindow.imageViewActif.mettreAJourImage()
 
     def getSelectedTextItem(self) -> None:
@@ -101,3 +114,18 @@ class ImageController:
                 imageItem = ImageUniqueItem(imagePath, x, y, width, height)
                 self.mainWindow.imageViewActif.ajouterItem(imageItem)
                 self.mainWindow.itemWidget.ajouterItemVersListe(imageItem)
+
+    def onFormeGeometriqueAjout(self) -> None:
+        if self.mainWindow.imageViewActif:
+            dialog = DialogFormeGeometriqueAjout()
+            if dialog.exec():
+                largeur, hauteur, radius = dialog.getDimensions()
+                try:
+                    largeur = int(largeur)
+                    hauteur = int(hauteur)
+                    radius = int(radius)
+                    formeGeometriqueItem = FormeGeometriqueItem('test', 20, 20, largeur, hauteur, radius, 'black')
+                    self.mainWindow.imageViewActif.ajouterItem(formeGeometriqueItem)
+                    self.mainWindow.itemWidget.ajouterItemVersListe(formeGeometriqueItem)
+                except ValueError:
+                    pass

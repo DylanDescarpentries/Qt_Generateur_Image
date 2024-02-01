@@ -21,7 +21,9 @@ class ProprietesWidget(QWidget):
     fontSizeChanged = Signal(int)
     largeurChanged = Signal(int)
     hauteurChanged = Signal(int)
+    radiusChanged = Signal(int)
     fontColorChanged = Signal(str)
+    formColorChanged = Signal(str)
 
     def __init__(self, imageController, parent=None) -> None:
         super().__init__(parent)
@@ -51,16 +53,21 @@ class ProprietesWidget(QWidget):
         self.dimensionsLayout = QHBoxLayout(self.dimensionsWidget)
         self.largeurEdit = QSpinBox(self.dimensionsWidget)
         self.hauteurEdit = QSpinBox(self.dimensionsWidget)
-        self.dimensionsLayout.addWidget(QLabel("Largeur:"))
+        self.radiusEdit = QSpinBox(self.dimensionsWidget)
+        self.dimensionsLayout.addWidget(QLabel('Largeur:'))
         self.dimensionsLayout.addWidget(self.largeurEdit)
-        self.dimensionsLayout.addWidget(QLabel("Hauteur:"))
+        self.dimensionsLayout.addWidget(QLabel('Hauteur:'))
         self.dimensionsLayout.addWidget(self.hauteurEdit)
+        self.dimensionsLayout.addWidget(QLabel('Radius:'))
+        self.dimensionsLayout.addWidget(self.radiusEdit)
         self.parametreLayout.addWidget(self.dimensionsWidget)
 
         maxValues = 999999
         self.largeurEdit.setMaximum(maxValues)
         self.hauteurEdit.setMaximum(maxValues)
+        self.radiusEdit.setMaximum(50)
         # Connexions des SpinBox
+        self.radiusEdit.valueChanged.connect(self.radiusChanged.emit)
         self.largeurEdit.valueChanged.connect(self.largeurChanged.emit)
         self.hauteurEdit.valueChanged.connect(self.hauteurChanged.emit)
 
@@ -91,6 +98,7 @@ class ProprietesWidget(QWidget):
         self.setupFontComboBox()
         self.setupFontSizeSpinBox()
         self.setupFontColor()
+        self.setupFormColor()
 
         # Définir le layout pour texteContainer
         self.texteContainer.setLayout(self.texteLayout)
@@ -113,9 +121,14 @@ class ProprietesWidget(QWidget):
     def setupFontColor(self) -> None:
         self.fontColorEdit = QPushButton("Choisir une couleur", self)
         self.texteLayout.addWidget(self.fontColorEdit)
-        self.fontColorEdit.clicked.connect(self.openColorDialog)
+        self.fontColorEdit.clicked.connect(lambda: self.openColorDialog('font'))
 
-    def openColorDialog(self) -> None:
+    def setupFormColor(self) -> None:
+        self.fontFormEdit = QPushButton("Choisir une couleur", self)
+        self.positionsLayout.addWidget(self.fontFormEdit)
+        self.fontFormEdit.clicked.connect(lambda: self.openColorDialog('form'))
+
+    def openColorDialog(self, source: str) -> None:
         # Définir une couleur initiale
         initialColor = QColor(255, 0, 0)
 
@@ -123,8 +136,10 @@ class ProprietesWidget(QWidget):
         color = QColorDialog.getColor(initialColor, self)
 
         if color.isValid():
-            # Utilisez la couleur sélectionnée ici
-            self.fontColorChanged.emit(color.name())
+            if source == "font":
+                self.fontColorChanged.emit(color.name())
+            elif source == "form":
+                self.formColorChanged.emit(color.name())
 
     def creerPliableGroupe(self, groupBox, title: str) -> QWidget:
         container = QWidget()

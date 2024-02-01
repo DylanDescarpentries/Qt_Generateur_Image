@@ -1,7 +1,7 @@
-"""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Ce module contient la classe DataController, responsable de la gestion des données,
 notamment l'importation des fichiers et la manipulation des DataFrames pandas.
-"""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 from typing import Union, Optional
 import pandas as pd

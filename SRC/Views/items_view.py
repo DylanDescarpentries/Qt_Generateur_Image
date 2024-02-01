@@ -5,9 +5,10 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QMessageBox,
     QMenu,
+    QInputDialog
 )
 from PySide6.QtCore import Qt, Signal
-from Models.text_item import TextColonneItem
+from Models.text_item import TextColonneItem, TextUniqueItem
 from copy import deepcopy
 
 
@@ -36,6 +37,9 @@ class ItemWidget(QWidget):
 
     def ouvrirContextMenu(self, position) -> None:
         contextMenu = QMenu(self)
+
+        modifierAction = contextMenu.addAction('Modifier')
+        modifierAction.triggered.connect(self.modifierItem)
 
         supprimerAction = contextMenu.addAction("Supprimer")
         supprimerAction.triggered.connect(self.onSupprimerAction)
@@ -82,7 +86,34 @@ class ItemWidget(QWidget):
     def collerItem(self) -> None:
         if self.elementCopie:
             itemCopie = deepcopy(self.elementCopie)
-            self.mainWindow.imageViewActif.ajouterItem(itemCopie)
+            if isinstance(itemCopie, (TextUniqueItem, TextColonneItem)):
+                itemCopie.nom += " - copie -"
+                self.mainWindow.imageViewActif.ajouterItem(itemCopie)
+
+    
+    def modifierItem(self) -> None:
+            selectedItem = self.itemsList.currentItem()
+            if selectedItem:
+                itemAModifier = selectedItem.data(Qt.UserRole)
+
+                if isinstance(itemAModifier, TextUniqueItem) or isinstance(itemAModifier, TextColonneItem):
+                    nouveauTexte, ok = QInputDialog.getText(
+                        self.mainWindow, "Modifier Texte", "Entrer votre nouveau texte :", text=itemAModifier.nom
+                    )
+
+                    if ok:
+                        if nouveauTexte.strip() == "":
+                            QMessageBox.warning(
+                                self.mainWindow, "Attention !", "Vous n'avez pas entré de texte"
+                            )
+                        else:
+                            itemAModifier.nom = nouveauTexte
+                            self.mainWindow.imageViewActif.mettreAJourImage()
+                            selectedItem.setText(nouveauTexte)
+                else:
+                    QMessageBox.warning(
+                        self.mainWindow, "Attention !", "L'élément sélectionné n'est pas modifiable."
+                    )
 
     def couperItem(self) -> None:
         selectedItem = self.itemsList.currentItem()

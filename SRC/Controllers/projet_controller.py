@@ -9,10 +9,10 @@ from PySide6.QtWidgets import (
     QScrollArea,
 )
 from PySide6.QtCore import Qt, QObject
-from PySide6.QtGui import QImage, QPainter, QFont, QPixmap, QPen, QColor
+from PySide6.QtGui import QImage, QPainter, QFont, QPixmap, QPen, QColor, QBrush
 from Views.image_view import ImageView
 from Views.dialogbox.progressbar import ProgressBar
-from Models.text_item import TextColonneItem, TextUniqueItem, ImageUniqueItem
+from Models.text_item import *
 
 
 class ProjetController(QObject):
@@ -75,7 +75,7 @@ class ProjetController(QObject):
         return dossierFinal
 
     def preparerExport(self, imageView: ImageView, dossierExport: str) -> None:
-        textColonneteItems, textUniqueItems, imageUniqueItems = self.classifierItems(
+        textColonneteItems, textUniqueItems, imageUniqueItems, formeGeometriqueItem = self.classifierItems(
             imageView
         )
         nombreLignes = self.determinerNombreLignes(textColonneteItems)
@@ -86,6 +86,7 @@ class ProjetController(QObject):
             textColonneteItems,
             textUniqueItems,
             imageUniqueItems,
+            formeGeometriqueItem,
             nombreLignes,
             tailleImage,
             dossierExport,
@@ -102,7 +103,12 @@ class ProjetController(QObject):
         textUniqueItems = [
             item for item in imageView.items if isinstance(item, TextUniqueItem)
         ]
-        return textColonneteItems, textUniqueItems, imageUniqueItems
+
+        formeGeometriqueItem = [
+            item for item in imageView.items if isinstance(item, FormeGeometriqueItem)
+        ]
+
+        return textColonneteItems, textUniqueItems, imageUniqueItems, formeGeometriqueItem
 
     def determinerNombreLignes(self, textColonneteItems) -> None:
         return (
@@ -121,6 +127,7 @@ class ProjetController(QObject):
         textColonneteItems,
         textUniqueItems,
         imageUniqueItems,
+        formeGemotriqueItem,
         nombreLignes,
         tailleImage,
         dossierExport,
@@ -132,7 +139,7 @@ class ProjetController(QObject):
             image.fill(Qt.white)
             painter = QPainter(image)
             self.dessinerItems(
-                painter, imageUniqueItems, textColonneteItems, textUniqueItems, numLigne
+                painter, imageUniqueItems, textColonneteItems, textUniqueItems, formeGemotriqueItem, numLigne
             )
             painter.end()
 
@@ -143,13 +150,20 @@ class ProjetController(QObject):
         progressBar.close()
 
     def dessinerItems(
-        self, painter, imageUniqueItems, textColonneteItems, textUniqueItems, numLigne
+        self, painter, imageUniqueItems, textColonneteItems, textUniqueItems, formeGemotriqueItem, numLigne
     ) -> None:
         # Dessiner les ImageUniqueItem
         for item in imageUniqueItems:
             imageToDraw = QPixmap(item.imagePath)
             painter.drawPixmap(item.x, item.y, item.largeur, item.hauteur, imageToDraw)
 
+        # dessiner les FormeGemotriqueItem
+        for item in formeGemotriqueItem:
+                brush = QBrush(Qt.SolidPattern)
+                brush.setColor(QColor(item.color))
+                painter.setBrush(brush)
+                painter.drawRoundedRect(item.x, item.y, item.largeur, item.hauteur, item.radius, item.radius)
+                
         # Dessiner les TextColonneteItem
         for item in textColonneteItems:
             if numLigne < len(item.text):
@@ -159,6 +173,7 @@ class ProjetController(QObject):
         # Dessiner les TextUniqueItem
         for item in textUniqueItems:
             self.configurerStyloEtTexte(painter, item, item.nom)
+        
 
     def configurerStyloEtTexte(self, painter, item: TextUniqueItem, texte: str) -> None:
         painter.setFont(QFont(item.font, item.fontSize))

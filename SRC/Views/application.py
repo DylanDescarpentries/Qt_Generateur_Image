@@ -110,11 +110,17 @@ class MainWindow(QMainWindow):
         self.proprietesWidget.fontColorChanged.connect(
             self.imageController.onFontColorChanged
         )
+        self.proprietesWidget.formColorChanged.connect(
+            self.imageController.onFormColorChanged
+        )
         self.proprietesWidget.largeurChanged.connect(
             self.imageController.onLargeurChanged
         )
         self.proprietesWidget.hauteurChanged.connect(
             self.imageController.onHauteurChanged
+        )
+        self.proprietesWidget.radiusChanged.connect(
+            self.imageController.onRadiusChanged
         )
 
     def _createRightDockWidget(self, title: str, widget: ProprietesWidget):

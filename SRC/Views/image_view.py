@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
-from PySide6.QtGui import QPixmap, QPainter, QFont, QPen, QColor
+from PySide6.QtGui import QPixmap, QPainter, QFont, QBrush, QColor, QPen
 from PySide6.QtCore import Qt, Signal
-from Models.text_item import TextColonneItem, ImageUniqueItem
+from Models.text_item import TextColonneItem, ImageUniqueItem, TextUniqueItem, FormeGeometriqueItem
 
 """///////////////////////////////////////////////////////////////////////////
     Widget pour afficher et manipuler des images dans le Générateur de fiches.
@@ -60,24 +60,28 @@ class ImageView(QWidget):
             self.items.remove(itemToDelete)
         self.mettreAJourImage()
 
-    def mettreAJourImage(self) -> None:
+    def mettreAJourImage(self):
         pixmap = QPixmap(self.imageLabel.pixmap().size())
         pixmap.fill(Qt.white)
         painter = QPainter(pixmap)
 
         for item in self.items:
-            if hasattr(item, "font") and hasattr(item, "fontSize"):
+            if isinstance(item, TextUniqueItem) or isinstance(item, TextColonneItem):
+                # Dessinez le texte comme avant
                 painter.setFont(QFont(item.font, item.fontSize))
-                color = QColor(item.fontColor)
-                pen = QPen(color)
-                painter.setPen(pen)
                 painter.drawText(item.x, item.y, item.nom)
-
             elif isinstance(item, ImageUniqueItem):
+                # Dessinez l'image comme avant
                 imageToDraw = QPixmap(item.imagePath)
-                painter.drawPixmap(
-                    item.x, item.y, item.largeur, item.hauteur, imageToDraw
-                )
+                painter.drawPixmap(item.x, item.y, item.largeur, item.hauteur, imageToDraw)
+            elif isinstance(item, FormeGeometriqueItem):
+                # Configurer la brosse pour le remplissage
+                brush = QBrush(Qt.SolidPattern)
+                brush.setColor(QColor(item.color))
+                painter.setBrush(brush)  # Appliquer le brush pour le remplissage
 
+
+                # Dessiner la forme géométrique avec remplissage
+                painter.drawRoundedRect(item.x, item.y, item.largeur, item.hauteur, item.radius, item.radius)
         painter.end()
         self.imageLabel.setPixmap(pixmap)
