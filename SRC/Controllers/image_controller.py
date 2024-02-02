@@ -41,7 +41,7 @@ class ImageController:
         if item:
             item.hauteur = hauteur
             self.mainWindow.imageViewActif.mettreAJourImage()
-    
+
     def onRadiusChanged(self, radius: int) -> None:
         item = self.getSelectedTextItem()
         if item:
@@ -65,7 +65,7 @@ class ImageController:
         if textItem:
             textItem.fontColor = fontColor
             self.mainWindow.imageViewActif.mettreAJourImage()
-    
+
     def onFormColorChanged(self, Color: str) -> None:
         item = self.getSelectedTextItem()
         if item:
@@ -75,15 +75,17 @@ class ImageController:
     def getSelectedTextItem(self) -> None:
         selectedItem = self.itemWidget.itemsList.currentItem()
         if selectedItem:
-            textItem = selectedItem.data(Qt.UserRole)
+            textItem = selectedItem.data(Qt.UserRole)  # type: ignore
             return textItem
         else:
-            QMessageBox.warning(self.mainWindow, "Attention !", "Aucun item selectionné !")
+            QMessageBox.warning(
+                self.mainWindow, "Attention !", "Aucun item selectionné !"
+            )
 
     def applyChanges(self) -> None:
         selectedItem = self.mainWindow.itemWidget.itemsList.currentItem()
         if selectedItem:
-            textItem = selectedItem.data(Qt.UserRole)
+            textItem = selectedItem.data(Qt.UserRole)  # type: ignore
             if textItem:
                 textItem.x = self.mainWindow.proprietesWidget.xpositionsEdit.value()
                 textItem.y = self.mainWindow.proprietesWidget.ypositionsEdit.value()
@@ -128,13 +130,21 @@ class ImageController:
                     largeur = int(largeur)
                     hauteur = int(hauteur)
                     radius = int(radius)
-                    formeGeometriqueItem = FormeGeometriqueItem('test', 20, 20, largeur, hauteur, radius, 'black')
+                    formeGeometriqueItem = FormeGeometriqueItem(
+                        "test", 20, 20, largeur, hauteur, radius, "black"
+                    )
                     self.mainWindow.imageViewActif.ajouterItem(formeGeometriqueItem)
-                    self.mainWindow.itemWidget.ajouterItemVersListe(formeGeometriqueItem)
+                    self.mainWindow.itemWidget.ajouterItemVersListe(
+                        formeGeometriqueItem
+                    )
                 except ValueError:
                     pass
-            else:
-                self.afficherMessageErreur()
+        else:
+            self.afficherMessageErreur()
 
     def afficherMessageErreur(self):
-        QMessageBox.warning(self.mainWindow, 'Action impossible', "Veuillez créer ou ouvrir un projet avant d'ajouter un item.")
+        QMessageBox.warning(
+            self.mainWindow,
+            "Action impossible",
+            "Veuillez créer ou ouvrir un projet avant d'ajouter un item.",
+        )

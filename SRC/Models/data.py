@@ -12,6 +12,7 @@ class PandasTableModel(QAbstractTableModel):
     """
     Modèle de table pour afficher les données d'un DataFrame pandas dans une vue Qt.
     """
+
     def __init__(self, data: pd.DataFrame):
         """
         Initialise le modèle avec un DataFrame pandas.
@@ -48,12 +49,12 @@ class PandasTableModel(QAbstractTableModel):
         :return: Données à l'index spécifié.
         """
         if index.isValid() and role == Qt.DisplayRole:
-                value = self.data_frame.iloc[index.row(), index.column()]
-                if pd.isna(value):
-                    return ""  # Ou toute autre représentation de votre choix pour NaN
-                return str(value)
+            value = self.data_frame.iloc[index.row(), index.column()]
+            if pd.isna(value):
+                return ""  # Ou toute autre représentation de votre choix pour NaN
+            return str(value)
         return None
-    
+
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         """
         Retourne les données d'en-tête pour la section donnée.

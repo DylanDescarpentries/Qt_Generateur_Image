@@ -6,10 +6,11 @@ from PySide6.QtWidgets import (
     QMenu,
     QInputDialog,
     QApplication,
-    QStyle
+    QStyle,
 )
 from Views.Widgets.customListWidget import CustomListWidget
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QIcon
 from Models.text_item import TextColonneItem, TextUniqueItem
 from copy import deepcopy
 
@@ -41,25 +42,24 @@ class ItemWidget(QWidget):
     def ouvrirContextMenu(self, position) -> None:
         contextMenu = QMenu(self)
 
-        modifierAction = contextMenu.addAction('Modifier')
+        modifierAction = contextMenu.addAction("Modifier")
         modifierAction.triggered.connect(self.modifierItem)
-        modifierIcon = QApplication.style().standardIcon(QStyle.SP_ToolBarHorizontalExtensionButton)
-        modifierAction.setIcon(modifierIcon)
 
         supprimerAction = contextMenu.addAction("Supprimer")
         supprimerAction.triggered.connect(self.onSupprimerAction)
-        supprimerIcon = QApplication.style().standardIcon(QStyle.SP_TrashIcon)
-        supprimerAction.setIcon(supprimerIcon)
-
+        supprimerAction.setIcon(QIcon(r"RESSOURCES\ASSETS\images\logo\supprimer.png"))
 
         copierAction = contextMenu.addAction("Copier")
         copierAction.triggered.connect(self.copierItem)
+        copierAction.setIcon(QIcon(r"RESSOURCES\ASSETS\images\logo\copie.png"))
 
         couperAction = contextMenu.addAction("Couper")
         couperAction.triggered.connect(self.couperItem)
+        couperAction.setIcon(QIcon(r"RESSOURCES\ASSETS\images\logo\couper.png"))
 
         collerAction = contextMenu.addAction("Coller")
         collerAction.triggered.connect(self.collerItem)
+        collerAction.setIcon(QIcon(r"RESSOURCES\ASSETS\images\logo\coller.png"))
 
         contextMenu.exec_(self.mapToGlobal(position))
 
@@ -98,30 +98,38 @@ class ItemWidget(QWidget):
                 itemCopie.nom += " - copie -"
                 self.mainWindow.imageViewActif.ajouterItem(itemCopie)
 
-    
     def modifierItem(self) -> None:
-            selectedItem = self.itemsList.currentItem()
-            if selectedItem:
-                itemAModifier = selectedItem.data(Qt.UserRole)
+        selectedItem = self.itemsList.currentItem()
+        if selectedItem:
+            itemAModifier = selectedItem.data(Qt.UserRole)
 
-                if isinstance(itemAModifier, TextUniqueItem) or isinstance(itemAModifier, TextColonneItem):
-                    nouveauTexte, ok = QInputDialog.getText(
-                        self.mainWindow, "Modifier Texte", "Entrer votre nouveau texte :", text=itemAModifier.nom
-                    )
+            if isinstance(itemAModifier, TextUniqueItem) or isinstance(
+                itemAModifier, TextColonneItem
+            ):
+                nouveauTexte, ok = QInputDialog.getText(
+                    self.mainWindow,
+                    "Modifier Texte",
+                    "Entrer votre nouveau texte :",
+                    text=itemAModifier.nom,
+                )
 
-                    if ok:
-                        if nouveauTexte.strip() == "":
-                            QMessageBox.warning(
-                                self.mainWindow, "Attention !", "Vous n'avez pas entré de texte"
-                            )
-                        else:
-                            itemAModifier.nom = nouveauTexte
-                            self.mainWindow.imageViewActif.mettreAJourImage()
-                            selectedItem.setText(nouveauTexte)
-                else:
-                    QMessageBox.warning(
-                        self.mainWindow, "Attention !", "L'élément sélectionné n'est pas modifiable."
-                    )
+                if ok:
+                    if nouveauTexte.strip() == "":
+                        QMessageBox.warning(
+                            self.mainWindow,
+                            "Attention !",
+                            "Vous n'avez pas entré de texte",
+                        )
+                    else:
+                        itemAModifier.nom = nouveauTexte
+                        self.mainWindow.imageViewActif.mettreAJourImage()
+                        selectedItem.setText(nouveauTexte)
+            else:
+                QMessageBox.warning(
+                    self.mainWindow,
+                    "Attention !",
+                    "L'élément sélectionné n'est pas modifiable.",
+                )
 
     def couperItem(self) -> None:
         selectedItem = self.itemsList.currentItem()

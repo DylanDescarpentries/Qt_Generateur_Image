@@ -1,6 +1,14 @@
 import logging
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QTableView, QMenu, QComboBox, QMessageBox
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QTableView,
+    QMenu,
+    QComboBox,
+    QMessageBox,
+)
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QIcon
 from Models.data import PandasTableModel
 from Models.text_item import TextColonneItem, ImageColonneItem
 import pandas as pd
@@ -26,6 +34,7 @@ class DataView(QWidget):
         self.setupUI()
         self.dataController.fichierImporte.connect(self.majSheetSelecteur)
         self.dataFrames = {}
+
     def setupUI(self) -> None:
         """
         Configure les éléments de l'interface utilisateur pour DataView.
@@ -62,17 +71,26 @@ class DataView(QWidget):
                 self.tableView.setModel(nouveauModel)
         except Exception as e:
             logging.error(f"Erreur Chargement\n {e}", exc_info=True)
-            QMessageBox.critical(None, "Erreur fichier Data", f"Problème lors du chargement les données : \n{e}.")
-
+            QMessageBox.critical(
+                None,
+                "Erreur fichier Data",
+                f"Problème lors du chargement les données : \n{e}.",
+            )
 
     def projetEstOuvert(self) -> bool:
         return self.mainWindow.imageViewActif is not None
 
     def afficherMessageErreurAbsenceProjet(self):
-        QMessageBox.warning(self, 'Action impossible', 'Veuillez créer ou ouvrir un projet avant d\'ajouter un item.')
-    
+        QMessageBox.warning(
+            self,
+            "Action impossible",
+            "Veuillez créer ou ouvrir un projet avant d'ajouter un item.",
+        )
+
     def afficherMessageErreurAbsenceTableau(self):
-        QMessageBox.warning(self, 'Action impossible', 'Veuillez initialiser un tableau')
+        QMessageBox.warning(
+            self, "Action impossible", "Veuillez initialiser un tableau"
+        )
 
     def ouvrirContextMenu(self, position) -> None:
         """
@@ -81,11 +99,20 @@ class DataView(QWidget):
         :param position: La position dans le widget où le menu contextuel doit être ouvert.
         """
         contextMenu = QMenu(self)
-        importTableauAction = contextMenu.addAction('Importer un tableau')
-        ajouterColonneAction = contextMenu.addAction('Ajouter la colonne comme un texte')
-        ajouterImagesAction = contextMenu.addAction('Ajouter la colonne Comme une image')
+        importTableauAction = contextMenu.addAction("Importer un tableau")
+        importTableauAction.setIcon(QIcon("RESSOURCES\ASSETS\images\logo\data.png"))
+        ajouterColonneAction = contextMenu.addAction(
+            "Ajouter la colonne comme un texte"
+        )
+        ajouterColonneAction.setIcon(
+            QIcon(r"RESSOURCES\ASSETS\images\logo\ajouter.png")
+        )
+        ajouterImagesAction = contextMenu.addAction(
+            "Ajouter la colonne Comme une image"
+        )
+        ajouterImagesAction.setIcon(QIcon(r"RESSOURCES\ASSETS\images\logo\ajouter.png"))
         action = contextMenu.exec(self.tableView.mapToGlobal(position))
-        
+
         if action == ajouterColonneAction:
             if self.projetEstOuvert():
                 self.ajouterColonneAuProjet()
@@ -97,7 +124,7 @@ class DataView(QWidget):
             if self.projetEstOuvert():
                 self.AjouterColonneImageAuProjet()
             else:
-                self.afficherMessageErreur()
+                self.afficherMessageErreurAbsenceTableau()
 
     def ajouterColonneAuProjet(self) -> None:
         try:
@@ -119,8 +146,14 @@ class DataView(QWidget):
             else:
                 self.afficherMessageErreurAbsenceTableau()
         except Exception as e:
-            logging.error(f"Erreur lors de la sauvegarde de l'image \n {e}", exc_info=True)
-            QMessageBox.critical(None, "Erreur Ajout Colonne", f"Problème lors de l'ajout de la Colonne : \n{e}.")
+            logging.error(
+                f"Erreur lors de la sauvegarde de l'image \n {e}", exc_info=True
+            )
+            QMessageBox.critical(
+                None,
+                "Erreur Ajout Colonne",
+                f"Problème lors de l'ajout de la Colonne : \n{e}.",
+            )
 
     def AjouterColonneImageAuProjet(self) -> None:
         try:
@@ -133,11 +166,18 @@ class DataView(QWidget):
                 imageItem = ImageColonneItem(cheminsImages)
 
                 self.colonneAjoutee.emit(imageItem)
-            self.afficherMessageErreurAbsenceTableau()
+            else:
+                self.afficherMessageErreurAbsenceTableau()
         except Exception as e:
-            logging.error(f"Erreur lors de la sauvegarde de l'image \n {e}", exc_info=True)
-            QMessageBox.critical(None, "Erreur Ajout Colonne", f"Problème lors de l'ajout de la Colonne : \n{e}.")
-            
+            logging.error(
+                f"Erreur lors de la sauvegarde de l'image \n {e}", exc_info=True
+            )
+            QMessageBox.critical(
+                None,
+                "Erreur Ajout Colonne",
+                f"Problème lors de l'ajout de la Colonne : \n{e}.",
+            )
+
     def majSheetSelecteur(self, dataFrames) -> None:
         self.dataFrames = dataFrames
         self.sheetSelecteur.clear()
@@ -148,5 +188,3 @@ class DataView(QWidget):
         if selected_sheet_name in self.dataFrames:
             dataFrame = self.dataFrames[selected_sheet_name]
             self.load_data(dataFrame)
-            
-

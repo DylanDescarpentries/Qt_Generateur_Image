@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QPushButton,
     QMessageBox,
-    QSpinBox
+    QSpinBox,
 )
 
 """////////////////////////////////////////////
@@ -20,37 +20,40 @@ class DialogFormeGeometriqueAjout(QDialog):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setWindowTitle("Ajouter une forme")
-        
+
         mainLayout = QVBoxLayout(self)
-        
+        maxValues = 99999
         # Zone de choix de la forme
         choixFormeLayout = QHBoxLayout()
         self.carreChoix = QPushButton("Carré", self)
         self.rondChoix = QPushButton("Rond", self)
         choixFormeLayout.addWidget(self.carreChoix)
         choixFormeLayout.addWidget(self.rondChoix)
-        
+
         # Zone de paramètres de la forme
         parametresFormeLayout = QHBoxLayout()
-        
+
         # Largeur
         largeurLayout = QVBoxLayout()
         largeurLabel = QLabel("Largeur :", self)
         self.largeurEdit = QSpinBox(self)
+        self.largeurEdit.setMaximum(maxValues)
         largeurLayout.addWidget(largeurLabel)
         largeurLayout.addWidget(self.largeurEdit)
-        
+
         # Hauteur
         hauteurLayout = QVBoxLayout()
         hauteurLabel = QLabel("Hauteur :", self)
         self.hauteurEdit = QSpinBox(self)
+        self.hauteurEdit.setMaximum(maxValues)
         hauteurLayout.addWidget(hauteurLabel)
         hauteurLayout.addWidget(self.hauteurEdit)
-        
+
         # Rayon (pour le rond)
         radiusLayout = QVBoxLayout()
         radiusLabel = QLabel("Rayon :", self)
         self.radiusEdit = QSpinBox(self)
+        self.radiusEdit.setMaximum(maxValues)
         radiusLayout.addWidget(radiusLabel)
         radiusLayout.addWidget(self.radiusEdit)
 
@@ -68,7 +71,7 @@ class DialogFormeGeometriqueAjout(QDialog):
         parametresFormeLayout.addLayout(largeurLayout)
         parametresFormeLayout.addLayout(hauteurLayout)
         parametresFormeLayout.addLayout(radiusLayout)
-        
+
         # Ajouter les sous-layouts au layout principal
         mainLayout.addLayout(choixFormeLayout)
         mainLayout.addLayout(parametresFormeLayout)

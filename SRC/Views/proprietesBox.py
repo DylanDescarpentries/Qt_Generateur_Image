@@ -54,18 +54,19 @@ class ProprietesWidget(QWidget):
         self.largeurEdit = QSpinBox(self.dimensionsWidget)
         self.hauteurEdit = QSpinBox(self.dimensionsWidget)
         self.radiusEdit = QSpinBox(self.dimensionsWidget)
-        self.dimensionsLayout.addWidget(QLabel('Largeur:'))
+        self.dimensionsLayout.addWidget(QLabel("Largeur:"))
         self.dimensionsLayout.addWidget(self.largeurEdit)
-        self.dimensionsLayout.addWidget(QLabel('Hauteur:'))
+        self.dimensionsLayout.addWidget(QLabel("Hauteur:"))
         self.dimensionsLayout.addWidget(self.hauteurEdit)
-        self.dimensionsLayout.addWidget(QLabel('Radius:'))
+        self.dimensionsLayout.addWidget(QLabel("Radius:"))
         self.dimensionsLayout.addWidget(self.radiusEdit)
         self.parametreLayout.addWidget(self.dimensionsWidget)
 
         maxValues = 999999
         self.largeurEdit.setMaximum(maxValues)
         self.hauteurEdit.setMaximum(maxValues)
-        self.radiusEdit.setMaximum(50)
+        self.radiusEdit.setMaximum(maxValues)
+
         # Connexions des SpinBox
         self.radiusEdit.valueChanged.connect(self.radiusChanged.emit)
         self.largeurEdit.valueChanged.connect(self.largeurChanged.emit)
@@ -121,12 +122,12 @@ class ProprietesWidget(QWidget):
     def setupFontColor(self) -> None:
         self.fontColorEdit = QPushButton("Choisir une couleur", self)
         self.texteLayout.addWidget(self.fontColorEdit)
-        self.fontColorEdit.clicked.connect(lambda: self.openColorDialog('font'))
+        self.fontColorEdit.clicked.connect(lambda: self.openColorDialog("font"))
 
     def setupFormColor(self) -> None:
-        self.fontFormEdit = QPushButton("Choisir une couleur", self)
-        self.positionsLayout.addWidget(self.fontFormEdit)
-        self.fontFormEdit.clicked.connect(lambda: self.openColorDialog('form'))
+        self.formColorEdit = QPushButton("Choisir une couleur", self)
+        self.positionsLayout.addWidget(self.formColorEdit)
+        self.formColorEdit.clicked.connect(lambda: self.openColorDialog("form"))
 
     def openColorDialog(self, source: str) -> None:
         # Définir une couleur initiale
@@ -154,7 +155,16 @@ class ProprietesWidget(QWidget):
 
         return container
 
-    def setProprietesItemOnButton(self, x: int, y: int, largeur: int = None, hauteur: int = None, couleur: QColor = None, police: QFont = None, taillePolice: int = None):
+    def setProprietesItemOnButton(
+        self,
+        x: int,
+        y: int,
+        largeur: int = None,
+        hauteur: int = None,
+        couleur: QColor = None,
+        police: QFont = None,
+        taillePolice: int = None,
+    ):
         self.xpositionsEdit.setValue(x)
         self.ypositionsEdit.setValue(y)
         if largeur is not None:

@@ -21,7 +21,9 @@ class ProjetController(QObject):
         self.mainWindow = mainWindow
         self.tabWidget = tabWidget
 
-    def creerNouveauProjet(self, largeur: int, hauteur: int, tabTitle: str = "Sans Titre") -> None:
+    def creerNouveauProjet(
+        self, largeur: int, hauteur: int, tabTitle: str = "Sans Titre"
+    ) -> None:
         imageView = ImageView(self.mainWindow, largeur, hauteur)
         imageView.creerImageVide(largeur, hauteur)
         scrollArea = self.creerScroll(imageView)
@@ -42,7 +44,9 @@ class ProjetController(QObject):
             if imageView is None:
                 if imageView is None:
                     QMessageBox.warning(
-                        None, "Avertissement", "Aucun projet actif pour l'exportation."
+                        self.mainWindow,
+                        "Avertissement",
+                        "Aucun projet actif pour l'exportation.",
                     )
                     return
 
@@ -55,8 +59,14 @@ class ProjetController(QObject):
 
             self.preparerExport(imageView, dossierExport)
         except Exception as e:
-            logging.error(f"Erreur lors de l'exportation du projet \n {e}", exc_info=True)
-            QMessageBox.critical(None, "Erreur d'Exportation", f"Une erreur inattendue est survenue lors de l'exportation : \n {e}.")
+            logging.error(
+                f"Erreur lors de l'exportation du projet \n {e}", exc_info=True
+            )
+            QMessageBox.critical(
+                None,
+                "Erreur d'Exportation",
+                f"Une erreur inattendue est survenue lors de l'exportation : \n {e}.",
+            )
 
     def validerImageView(self, imageView: ImageView) -> bool:
         if imageView is None or not imageView.items:
@@ -78,7 +88,7 @@ class ProjetController(QObject):
         if not os.path.exists(dossierFinal):
             os.makedirs(dossierFinal)
         return dossierFinal
-    
+
     def définirNombresLignes(self, textColonneteItems, imageColonneItem) -> int:
         """
         Détermine le nombre total de lignes basé sur les éléments de texte et d'image.
@@ -92,19 +102,29 @@ class ProjetController(QObject):
         else:
             nombreLignesTexte = 0
         if imageColonneItem:
-            nombreLignesImage = max(len(item.imagePath) for item in imageColonneItem if isinstance(item, ImageColonneItem))
+            nombreLignesImage = max(
+                len(item.imagePath)
+                for item in imageColonneItem
+                if isinstance(item, ImageColonneItem)
+            )
         else:
             nombreLignesImage = 0
-            
+
         nombreLignesTotal = max(nombreLignesTexte, nombreLignesImage)
         return nombreLignesTotal
-    
+
     def preparerExport(self, imageView: ImageView, dossierExport: str) -> None:
-        textColonneteItems, textUniqueItems, imageUniqueItems, imageColonneItem, formeGeometriqueItem = self.classifierItems(
-            imageView
+        (
+            textColonneteItems,
+            textUniqueItems,
+            imageUniqueItems,
+            imageColonneItem,
+            formeGeometriqueItem,
+        ) = self.classifierItems(imageView)
+        nombreLignes = nombreLignes = self.définirNombresLignes(
+            textColonneteItems, imageColonneItem
         )
-        nombreLignes = nombreLignes = self.définirNombresLignes(textColonneteItems, imageColonneItem)
-    
+
         tailleImage = imageView.imageLabel.pixmap().size()
         progressBar = self.creerProgressBar(nombreLignes)
 
@@ -138,7 +158,13 @@ class ProjetController(QObject):
             item for item in imageView.items if isinstance(item, FormeGeometriqueItem)
         ]
 
-        return textColonneteItems, textUniqueItems, imageUniqueItems, imageColonneItem, formeGeometriqueItem
+        return (
+            textColonneteItems,
+            textUniqueItems,
+            imageUniqueItems,
+            imageColonneItem,
+            formeGeometriqueItem,
+        )
 
     def determinerNombreLignes(self, textColonneteItems) -> None:
         return (
@@ -170,7 +196,13 @@ class ProjetController(QObject):
             image.fill(Qt.white)
             painter = QPainter(image)
             self.dessinerItems(
-                painter, imageUniqueItems, imageColonneItem, textColonneteItems, textUniqueItems, formeGemotriqueItem, numLigne
+                painter,
+                imageUniqueItems,
+                imageColonneItem,
+                textColonneteItems,
+                textUniqueItems,
+                formeGemotriqueItem,
+                numLigne,
             )
             painter.end()
 
@@ -181,28 +213,45 @@ class ProjetController(QObject):
         progressBar.close()
 
     def dessinerItems(
-        self, painter, imageUniqueItems, imageColonneItem, textColonneteItems, textUniqueItems, formeGemotriqueItem, numLigne
+        self,
+        painter,
+        imageUniqueItems,
+        imageColonneItem,
+        textColonneteItems,
+        textUniqueItems,
+        formeGemotriqueItem,
+        numLigne,
     ) -> None:
         try:
             # Dessiner les ImageUniqueItem
             for item in imageUniqueItems:
                 imageToDraw = QPixmap(item.imagePath)
-                painter.drawPixmap(item.x, item.y, item.largeur, item.hauteur, imageToDraw)
+                painter.drawPixmap(
+                    item.x, item.y, item.largeur, item.hauteur, imageToDraw
+                )
 
             # Dessiner Les ImageColonneItem
             for item in imageColonneItem:
-                if isinstance(item, ImageColonneItem) and numLigne < len(item.imagePath):
+                if isinstance(item, ImageColonneItem) and numLigne < len(
+                    item.imagePath
+                ):
                     cheminImage = item.imagePath[numLigne]
-                    if isinstance(cheminImage, str) and not isna(cheminImage) and cheminImage.strip() != "":
+                    if (
+                        isinstance(cheminImage, str)
+                        and not isna(cheminImage)
+                        and cheminImage.strip() != ""
+                    ):
                         self.configurerImageColonne(painter, item, str(cheminImage))
-                
+
             # dessiner les FormeGemotriqueItem
             for item in formeGemotriqueItem:
-                    brush = QBrush(Qt.SolidPattern)
-                    brush.setColor(QColor(item.color))
-                    painter.setBrush(brush)
-                    painter.drawRoundedRect(item.x, item.y, item.largeur, item.hauteur, item.radius, item.radius)
-                    
+                brush = QBrush(Qt.SolidPattern)
+                brush.setColor(QColor(item.color))
+                painter.setBrush(brush)
+                painter.drawRoundedRect(
+                    item.x, item.y, item.largeur, item.hauteur, item.radius, item.radius
+                )
+
             # Dessiner les TextColonneteItem
             for item in textColonneteItems:
                 if numLigne < len(item.text):
@@ -214,14 +263,19 @@ class ProjetController(QObject):
                 self.configurerStyloEtTexte(painter, item, item.nom)
         except Exception as e:
             logging.error(f"Erreur lors du dessin des items {e}", exc_info=True)
-            QMessageBox.critical(None, "Erreur d'Exportation", f"Une erreur inattendue est survenue lors de l'écriture des images : \n {e}.")   
+            QMessageBox.critical(
+                None,
+                "Erreur d'Exportation",
+                f"Une erreur inattendue est survenue lors de l'écriture des images : \n {e}.",
+            )
 
-    def configurerImageColonne(self, painter, item: ImageColonneItem, cheminImage: str) -> None:
+    def configurerImageColonne(
+        self, painter, item: ImageColonneItem, cheminImage: str
+    ) -> None:
         # Charger l'image à partir du chemin fourni
         imageToDraw = QPixmap(cheminImage)
         if not imageToDraw.isNull():
             painter.drawPixmap(item.x, item.y, item.largeur, item.hauteur, imageToDraw)
-
 
     def configurerStyloEtTexte(self, painter, item: TextUniqueItem, texte: str) -> None:
         painter.setFont(QFont(item.font, item.fontSize))
@@ -237,7 +291,11 @@ class ProjetController(QObject):
                 raise Exception(f"Impossible de sauvegarder l'image {nomFichier}")
         except Exception as e:
             logging.error("Erreur lors de la sauvegarde de l'image", exc_info=True)
-            QMessageBox.critical(None, "Erreur de Sauvegarde", f"Impossible de sauvegarder l'image {nomFichier}.")
+            QMessageBox.critical(
+                None,
+                "Erreur de Sauvegarde",
+                f"Impossible de sauvegarder l'image {nomFichier}.",
+            )
 
     def mettreAJourProgressBar(self, progressBar, current_image, numLigne):
         progressBar.update_progress(

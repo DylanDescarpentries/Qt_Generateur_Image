@@ -37,7 +37,7 @@ class MainWindow(QMainWindow):
         """
         super().__init__()
         self.setWindowTitle("Générateur de fiches")
-        self.setWindowIcon(QIcon('SRC/Assets/images/logo/logo.ico'))
+        self.setWindowIcon(QIcon("RESSOURCES/Assets/images/logo/logo.ico"))
         self.setGeometry(0, 0, 1200, 720)  # Définit la taille initiale de la fenêtre
         self.imageViewActif = None  # Référence à l'ImageView actuellement actif
         self._setupUI()  # Configuration de l'interface utilisateur
@@ -129,7 +129,9 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, dockWidget)
         return dockWidget
 
-    def _createLeftDockWidget(self, title: str, widget: ProprietesWidget) -> QDockWidget:
+    def _createLeftDockWidget(
+        self, title: str, widget: ProprietesWidget
+    ) -> QDockWidget:
         dockWidget = QDockWidget(title, self)
         dockWidget.setWidget(widget)
         self.addDockWidget(Qt.LeftDockWidgetArea, dockWidget)

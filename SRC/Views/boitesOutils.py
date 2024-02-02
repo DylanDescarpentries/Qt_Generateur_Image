@@ -12,7 +12,7 @@ class BoiteOutils(QWidget):
         # Création des boutons
         self.tableauImport = QPushButton("Importer Tableau")
         self.textAjout = QPushButton("Ajouter un texte")
-        self.formeGemotriqueAjout = QPushButton('Ajouter une Forme')
+        self.formeGemotriqueAjout = QPushButton("Ajouter une Forme")
         self.ImageAjout = QPushButton("Ajouter Image")
         # Ajout des boutons au layout en spécifiant la ligne et la colonne
         self.layout.addWidget(self.tableauImport, 0, 0)
@@ -24,4 +24,6 @@ class BoiteOutils(QWidget):
         self.tableauImport.clicked.connect(self.dataController.importFichier)
         self.textAjout.clicked.connect(self.imageController.onTextAjout)
         self.ImageAjout.clicked.connect(self.imageController.onImageAjout)
-        self.formeGemotriqueAjout.clicked.connect(self.imageController.onFormeGeometriqueAjout)
+        self.formeGemotriqueAjout.clicked.connect(
+            self.imageController.onFormeGeometriqueAjout
+        )
