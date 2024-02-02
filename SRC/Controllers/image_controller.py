@@ -5,7 +5,7 @@ Module de contrôle pour la gestion des images dans l'application.
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMessageBox, QInputDialog, QFileDialog
 from Models.text_item import TextUniqueItem, ImageUniqueItem, FormeGeometriqueItem
-from Views.dialogbox.dialogFormeGeometriqueAjout import DialogFormeGeometriqueAjout
+from Views.Widgets.dialogFormeGeometriqueAjout import DialogFormeGeometriqueAjout
 
 
 class ImageController:
@@ -103,6 +103,8 @@ class ImageController:
                     textItem = TextUniqueItem(texte, 20, 20)
                     self.mainWindow.imageViewActif.ajouterItem(textItem)
                     self.mainWindow.itemWidget.ajouterItemVersListe(textItem)
+        else:
+            self.afficherMessageErreur()
 
     def onImageAjout(self) -> None:
         if self.mainWindow.imageViewActif:
@@ -114,6 +116,8 @@ class ImageController:
                 imageItem = ImageUniqueItem(imagePath, x, y, width, height)
                 self.mainWindow.imageViewActif.ajouterItem(imageItem)
                 self.mainWindow.itemWidget.ajouterItemVersListe(imageItem)
+        else:
+            self.afficherMessageErreur()
 
     def onFormeGeometriqueAjout(self) -> None:
         if self.mainWindow.imageViewActif:
@@ -129,3 +133,8 @@ class ImageController:
                     self.mainWindow.itemWidget.ajouterItemVersListe(formeGeometriqueItem)
                 except ValueError:
                     pass
+            else:
+                self.afficherMessageErreur()
+
+    def afficherMessageErreur(self):
+        QMessageBox.warning(self.mainWindow, 'Action impossible', "Veuillez créer ou ouvrir un projet avant d'ajouter un item.")

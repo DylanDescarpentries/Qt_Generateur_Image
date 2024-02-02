@@ -48,9 +48,12 @@ class PandasTableModel(QAbstractTableModel):
         :return: Données à l'index spécifié.
         """
         if index.isValid() and role == Qt.DisplayRole:
-            return str(self.data_frame.iloc[index.row(), index.column()])
+                value = self.data_frame.iloc[index.row(), index.column()]
+                if pd.isna(value):
+                    return ""  # Ou toute autre représentation de votre choix pour NaN
+                return str(value)
         return None
-
+    
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         """
         Retourne les données d'en-tête pour la section donnée.
@@ -75,12 +78,7 @@ class PandasTableModel(QAbstractTableModel):
         """
         return self.data_frame.iloc[:, column].tolist()
 
-    def set_data(self, new_data: pd.DataFrame):
-        """
-        Définit les nouvelles données du modèle.
-
-        :param new_data: Nouveau DataFrame pandas à utiliser.
-        """
+    def set_data(self, new_data):
         self.beginResetModel()
         self.data_frame = new_data
         self.endResetModel()

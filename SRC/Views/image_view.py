@@ -1,7 +1,8 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
-from PySide6.QtGui import QPixmap, QPainter, QFont, QBrush, QColor, QPen
+import logging
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QMessageBox
+from PySide6.QtGui import QPixmap, QPainter, QFont, QBrush, QColor
 from PySide6.QtCore import Qt, Signal
-from Models.text_item import TextColonneItem, ImageUniqueItem, TextUniqueItem, FormeGeometriqueItem
+from Models.text_item import *
 
 """///////////////////////////////////////////////////////////////////////////
     Widget pour afficher et manipuler des images dans le Générateur de fiches.
@@ -60,28 +61,39 @@ class ImageView(QWidget):
             self.items.remove(itemToDelete)
         self.mettreAJourImage()
 
+    def reordonnerItems(self, nouveauxItems):
+        # Met à jour l'ordre des items graphiques selon `nouveauxItems`
+        self.items = nouveauxItems
+        self.mettreAJourImage()
+        
     def mettreAJourImage(self):
-        pixmap = QPixmap(self.imageLabel.pixmap().size())
-        pixmap.fill(Qt.white)
-        painter = QPainter(pixmap)
+        try:
+            pixmap = QPixmap(self.imageLabel.pixmap().size())
+            pixmap.fill(Qt.white)
+            painter = QPainter(pixmap)
 
-        for item in self.items:
-            if isinstance(item, TextUniqueItem) or isinstance(item, TextColonneItem):
-                # Dessinez le texte comme avant
-                painter.setFont(QFont(item.font, item.fontSize))
-                painter.drawText(item.x, item.y, item.nom)
-            elif isinstance(item, ImageUniqueItem):
-                # Dessinez l'image comme avant
-                imageToDraw = QPixmap(item.imagePath)
-                painter.drawPixmap(item.x, item.y, item.largeur, item.hauteur, imageToDraw)
-            elif isinstance(item, FormeGeometriqueItem):
-                # Configurer la brosse pour le remplissage
-                brush = QBrush(Qt.SolidPattern)
-                brush.setColor(QColor(item.color))
-                painter.setBrush(brush)  # Appliquer le brush pour le remplissage
+            for item in self.items:
+                if isinstance(item, TextUniqueItem) or isinstance(item, TextColonneItem):
+                    # Dessinez le texte comme avant
+                    painter.setFont(QFont(item.font, item.fontSize))
+                    painter.drawText(item.x, item.y, item.nom)
+                elif isinstance(item, ImageUniqueItem):
+                    # Dessinez l'image comme avant
+                    imageToDraw = QPixmap(item.imagePath)
+                    painter.drawPixmap(item.x, item.y, item.largeur, item.hauteur, imageToDraw)
+                elif isinstance(item, ImageColonneItem):
+                    imageToDraw = QPixmap(item.nom)
+                    painter.drawPixmap(item.x, item.y, item.largeur, item.hauteur, imageToDraw)
+                elif isinstance(item, FormeGeometriqueItem):
+                    # Configurer la brosse pour le remplissage
+                    brush = QBrush(Qt.SolidPattern)
+                    brush.setColor(QColor(item.color))
+                    painter.setBrush(brush)  # Appliquer le brush pour le remplissage
+                    # Dessiner la forme géométrique avec remplissage
+                    painter.drawRoundedRect(item.x, item.y, item.largeur, item.hauteur, item.radius, item.radius)
 
-
-                # Dessiner la forme géométrique avec remplissage
-                painter.drawRoundedRect(item.x, item.y, item.largeur, item.hauteur, item.radius, item.radius)
-        painter.end()
-        self.imageLabel.setPixmap(pixmap)
+            painter.end()
+            self.imageLabel.setPixmap(pixmap)
+        except Exception as e:
+            logging.error(f"Rafraichissement Image \n {e}", exc_info=True)
+            QMessageBox.critical(None, "Rafraichissement Image ", f"Problème lors du Rafraichissement de l'image: \n{e}.")

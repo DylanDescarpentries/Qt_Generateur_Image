@@ -1,12 +1,14 @@
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
-    QListWidget,
     QListWidgetItem,
     QMessageBox,
     QMenu,
-    QInputDialog
+    QInputDialog,
+    QApplication,
+    QStyle
 )
+from Views.Widgets.customListWidget import CustomListWidget
 from PySide6.QtCore import Qt, Signal
 from Models.text_item import TextColonneItem, TextUniqueItem
 from copy import deepcopy
@@ -21,28 +23,34 @@ class ItemWidget(QWidget):
 
         # Création du QListWidget pour les éléments
         self.layout = QVBoxLayout(self)
-        self.itemsList = QListWidget(self)
+        self.itemsList = CustomListWidget(self)
         self.layout.addWidget(self.itemsList)
 
         self.itemsList.itemSelectionChanged.connect(self.onItemSelected)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.ouvrirContextMenu)
+        self.itemsList.itemsReordered.connect(self.onItemsReordonnes)
 
     def ajouterItemVersListe(self, item) -> None:
         self.listItem = QListWidgetItem(str(item))
         self.listItem.setData(Qt.UserRole, item)
         self.itemsList.addItem(self.listItem)
         self.itemsList.setCurrentItem(self.listItem)
-        self.itemsList.setDragDropMode(QListWidget.InternalMove)
+        self.itemsList.setDragDropMode(CustomListWidget.InternalMove)
 
     def ouvrirContextMenu(self, position) -> None:
         contextMenu = QMenu(self)
 
         modifierAction = contextMenu.addAction('Modifier')
         modifierAction.triggered.connect(self.modifierItem)
+        modifierIcon = QApplication.style().standardIcon(QStyle.SP_ToolBarHorizontalExtensionButton)
+        modifierAction.setIcon(modifierIcon)
 
         supprimerAction = contextMenu.addAction("Supprimer")
         supprimerAction.triggered.connect(self.onSupprimerAction)
+        supprimerIcon = QApplication.style().standardIcon(QStyle.SP_TrashIcon)
+        supprimerAction.setIcon(supprimerIcon)
+
 
         copierAction = contextMenu.addAction("Copier")
         copierAction.triggered.connect(self.copierItem)
@@ -141,3 +149,12 @@ class ItemWidget(QWidget):
         self.itemsList.clear()
         for item in items:
             self.ajouterItemVersListe(item)
+
+    def onItemsReordonnes(self):
+        nouveauxItems = []
+        for index in range(self.itemsList.count()):
+            listItem = self.itemsList.item(index)
+            item = listItem.data(Qt.UserRole)
+            nouveauxItems.append(item)
+        if self.mainWindow.imageViewActif:
+            self.mainWindow.imageViewActif.reordonnerItems(nouveauxItems)

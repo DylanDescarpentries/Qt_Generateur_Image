@@ -3,7 +3,7 @@ Ce module contient la classe DataController, responsable de la gestion des donn�
 notamment l'importation des fichiers et la manipulation des DataFrames pandas.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-from typing import Union, Optional
+from typing import Dict
 import pandas as pd
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtCore import QObject, Signal
@@ -13,25 +13,25 @@ class DataController(QObject):
     """
     Contrôleur pour gérer l'importation et la manipulation des données.
     """
-    fichierImporte = Signal(pd.DataFrame)
+    fichierImporte = Signal(dict)
 
     def __init__(self) -> None:
         super().__init__()
-        self.data_frame: Union[pd.DataFrame, None] = None
+        self.dataFrames = None  
+        self.filePath = '' 
+
 
     def importFichier(self) -> None:
         """
-        Ouvre un dialogue pour importer un fichier Excel et émet le DataFrame chargé.
+        Ouvre un dialogue pour importer un fichier Excel.
         """
-        file_path, _ = QFileDialog.getOpenFileName(
+        self.filePath, _ = QFileDialog.getOpenFileName(
             None, "Sélectionner un fichier XLSX", "", "Fichiers Excel (*.xlsx)"
         )
-        if file_path:
-            self.data_frame = pd.read_excel(file_path)
-            self.fichierImporte.emit(self.data_frame)
+        if self.filePath:
+            self.chargerFeuille()
 
-    def get_data_frame(self) ->Optional[pd.DataFrame]:
-        """
-        Retourne le DataFrame actuellement chargé.
-        """
-        return self.data_frame
+    def chargerFeuille(self) -> Dict[str, pd.DataFrame]:
+        if self.filePath:
+            dataFrames = pd.read_excel(self.filePath, sheet_name=None)
+            self.fichierImporte.emit(dataFrames) 

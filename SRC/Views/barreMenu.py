@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QMenuBar, QApplication, QMessageBox, QMenu
-from PySide6.QtGui import QAction
-from Views.dialogbox.dialogNouveauProjet import DialogNouveauProjet
+from PySide6.QtWidgets import QMenuBar, QApplication, QMessageBox, QMenu, QStyle
+from PySide6.QtGui import QAction, QIcon
+from Views.Widgets.dialogNouveauProjet import DialogNouveauProjet
 
 
 class MenuBarre(QMenuBar):
@@ -28,19 +28,27 @@ class MenuBarre(QMenuBar):
         # Creer un nouveau projet
         creerProjetAction = QAction("Nouveau projet", self)
         creerProjetAction.setShortcut("Ctrl+N")
+        nouveauProjetIcon = QApplication.style().standardIcon(QStyle.SP_DirOpenIcon)
+        creerProjetAction.setIcon(nouveauProjetIcon)
         creerProjetAction.triggered.connect(self.nouveauProjet)
 
         # importer un fichier
         importFileAction = QAction("Importer un fichier", self)
         importFileAction.setShortcut("Ctrl+O")
+        ouvrirFichierIcon = QApplication.style().standardIcon(QStyle.SP_FileIcon)
+        importFileAction.setIcon(ouvrirFichierIcon)
         importFileAction.triggered.connect(self.dataController.importFichier)
 
         # Exporter projet
         exporterProjetAction = QAction("Exporter projet", self)
+        exportPngIcon = QApplication.style().standardIcon(QStyle.SP_DriveFDIcon)
+        exporterProjetAction.setIcon(exportPngIcon)
         exporterProjetAction.triggered.connect(self.exporterProjet)
 
         # Quitter l'application
         exitAction = QAction("Quitter", self)
+        quitterIcon = QApplication.style().standardIcon(QStyle.SP_TitleBarCloseButton)
+        exitAction.setIcon(quitterIcon)
         exitAction.setShortcut("alt+f4")
         exitAction.triggered.connect(QApplication.quit)
 

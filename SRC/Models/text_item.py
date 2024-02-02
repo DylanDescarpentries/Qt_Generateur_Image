@@ -8,7 +8,7 @@ import os
 class TextColonneItem:
     """Représente un élément de texte associé à une colonne."""
 
-    def __init__(self, nom: str, text: str, x: int=20, y: int=20, font: str="Arial", fontSize: str=12, fontColor : str="black") -> None:
+    def __init__(self, nom: str, text: list[str], x: int=20, y: int=20, font: str="Arial", fontSize: str=12, fontColor : str="black") -> None:
         self.nom = nom
         self.text = text
         self.x = x
@@ -21,6 +21,19 @@ class TextColonneItem:
         return self.nom
 
 
+class ImageColonneItem:
+    """Représente une image associé à une colonne."""
+    def __init__(self, imagePath: list[str], nom: str='SRC/Assets/images/default.png', x: int=20, y: int=20, largeur: int=20, hauteur: int=20) -> None:
+        self.nom = nom
+        self.imagePath = imagePath
+        self.x = x
+        self.y = y
+        self.largeur = largeur
+        self.hauteur = hauteur
+
+    def __str__(self) -> str:
+        return self.nom
+    
 class TextUniqueItem:
     """Représente un élément de texte unique."""
 

@@ -5,9 +5,9 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QDockWidget,
     QTabWidget,
-    QMessageBox,
     QScrollArea,
 )
+from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
 from Views.barreMenu import MenuBarre
 from Views.data_view import DataView
@@ -20,7 +20,7 @@ from Controllers.projet_controller import ProjetController
 from Controllers.projet_controller import EditableTabBar
 from Controllers.ui_controller import UiController
 from Controllers.image_controller import ImageController
-from Models.text_item import TextColonneItem
+from Models.text_item import *
 
 
 class MainWindow(QMainWindow):
@@ -37,6 +37,7 @@ class MainWindow(QMainWindow):
         """
         super().__init__()
         self.setWindowTitle("Générateur de fiches")
+        self.setWindowIcon(QIcon('SRC/Assets/images/logo/logo.ico'))
         self.setGeometry(0, 0, 1200, 720)  # Définit la taille initiale de la fenêtre
         self.imageViewActif = None  # Référence à l'ImageView actuellement actif
         self._setupUI()  # Configuration de l'interface utilisateur
@@ -95,7 +96,6 @@ class MainWindow(QMainWindow):
 
     def _connectSignals(self) -> None:
         self.dataView.colonneAjoutee.connect(self.onColonneAjoutee)
-        self.dataController.fichierImporte.connect(self.dataView.load_data)
         self.tabWidget.currentChanged.connect(self.uiController.ongletChange)
         self.tabWidget.tabCloseRequested.connect(self.uiController.fermerOnglet)
         self.itemWidget.itemSelected.connect(self.onItemSelected)
@@ -144,17 +144,14 @@ class MainWindow(QMainWindow):
         if self.imageViewActif:
             self.imageViewActif.ajouterItem(item)
 
-    def onItemSelected(self, item: TextColonneItem) -> None:
-
+    def onItemSelected(self, item) -> None:
         if isinstance(item, TextColonneItem):
-            try:
-                self.proprietesWidget.setXandY(item.x, item.y)
-            except ValueError:
-                QMessageBox.critical(
-                    None,
-                    "Erreur Valeur",
-                    f"Erreur : les valeurs 'x' et 'y' doivent être des nombres entiers. \n x :{item.x} y :{item.y}",
-                )
+            self.proprietesWidget.setProprietesItemOnButton(item.x, item.y)
+        # Gère ImageUniqueItem
+        elif isinstance(item, ImageUniqueItem):
+            self.proprietesWidget.setProprietesItemOnButton(item.x, item.y)
+        elif isinstance(item, FormeGeometriqueItem):
+            self.proprietesWidget.setProprietesItemOnButton(item.x, item.y)
 
     def getActiveImageView(self) -> Optional[ImageView]:
         scrollArea = self.tabWidget.currentWidget()

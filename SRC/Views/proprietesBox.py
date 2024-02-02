@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
     QColorDialog,
     QFileDialog,
 )
-from PySide6.QtGui import QFontDatabase, QColor
+from PySide6.QtGui import QFontDatabase, QColor, QFont
 from PySide6.QtCore import Signal
 
 
@@ -154,9 +154,20 @@ class ProprietesWidget(QWidget):
 
         return container
 
-    def setXandY(self, x: int, y: int) -> None:
+    def setProprietesItemOnButton(self, x: int, y: int, largeur: int = None, hauteur: int = None, couleur: QColor = None, police: QFont = None, taillePolice: int = None):
         self.xpositionsEdit.setValue(x)
         self.ypositionsEdit.setValue(y)
+        if largeur is not None:
+            self.largeurEdit.setValue(largeur)
+        if hauteur is not None:
+            self.hauteurEdit.setValue(hauteur)
+        if couleur is not None:
+            # Supposons que vous avez un widget QColorDialog ou similaire pour la couleur
+            self.couleurEdit.setCurrentColor(couleur)
+        if police is not None and taillePolice is not None:
+            # Supposons que vous avez un QFontComboBox et un QSpinBox pour la police et la taille
+            self.policeEdit.setCurrentFont(police)
+            self.taillePoliceEdit.setValue(taillePolice)
 
     def onFontComboBoxChanged(self):
         if self.fontEdit.currentText() == "Charger une police...":
