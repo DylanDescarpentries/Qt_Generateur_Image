@@ -1,3 +1,8 @@
+"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"
+Ce module contient la classe DataController, responsable de la gestion des données,
+notamment l'importation des fichiers et la manipulation des DataFrames pandas.
+""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
+import os, logging
 from PySide6.QtWidgets import QMenuBar, QApplication, QMessageBox, QMenu, QStyle
 from PySide6.QtGui import QAction, QIcon
 from Views.Widgets.dialogNouveauProjet import DialogNouveauProjet
@@ -30,12 +35,32 @@ class MenuBarre(QMenuBar):
         creerProjetAction.setShortcut("Ctrl+N")
         creerProjetAction.triggered.connect(self.nouveauProjet)
 
+        ouvrirProjetMenu = QMenu("Ouvrir un projet", self)
+
+        # création des sous-menu d'ouvrir projet
+        projetExistants = (
+            self.listeProjetExistant()
+        )  # récupère la liste des projets existant
+        for sauvegarde in projetExistants:
+            actionProjet = QAction(sauvegarde, self)
+            actionProjet.triggered.connect(
+                lambda checked: self.projetController.chargerProjet(sauvegarde)
+            )
+            ouvrirProjetMenu.addAction(actionProjet)
+
         # importer un fichier
         importFileAction = QAction("Importer un fichier", self)
         importFileAction.setShortcut("Ctrl+O")
         ouvrirFichierIcon = QApplication.style().standardIcon(QStyle.SP_FileIcon)
         importFileAction.setIcon(ouvrirFichierIcon)
         importFileAction.triggered.connect(self.dataController.importFichier)
+
+        # Sauvegarder le projet
+        sauvegarderProjetAction = QAction("Sauvegarder", self)
+        sauvegarderProjetAction.setShortcut("Ctrl+S")
+        sauvegarderProjetAction.triggered.connect(
+            self.projetController.preparerLaSauvegarde
+        )
 
         # Exporter projet
         exporterProjetAction = QAction("Exporter projet", self)
@@ -51,9 +76,11 @@ class MenuBarre(QMenuBar):
         exitAction.triggered.connect(QApplication.quit)
 
         # Ajouter les actions
+        fileMenu.addMenu(ouvrirProjetMenu)
         fileMenu.addAction(creerProjetAction)
         fileMenu.addAction(importFileAction)
         fileMenu.addSeparator()
+        fileMenu.addAction(sauvegarderProjetAction)
         fileMenu.addAction(exporterProjetAction)
         fileMenu.addSeparator()
         fileMenu.addAction(exitAction)
@@ -64,7 +91,10 @@ class MenuBarre(QMenuBar):
     def creerEditMenu(self) -> None:
         editMenu = self.addMenu("Edition")
 
+    # Création du menu Affichage
     def creerAffichageMenu(self):
+
+        # création menu
         affichageMenu = self.addMenu("Affichage")
         vuesSubMenu = QMenu("Vues", self)
         themesSubMenu = QMenu("Themes", self)
@@ -81,11 +111,13 @@ class MenuBarre(QMenuBar):
         themeWindowsVista = QAction("Windows Vista", self)
         themeFusion = QAction("Fusion", self)
 
+        # raccourcis clavier
         afficherItemAction.setShortcut("I")
         afficherDataViewAction.setShortcut("T")
         afficherProprieteAction.setShortcut("P")
         afficherBoitOutilsAction.setShortcut("B")
 
+        # connexion des menus avec leur methode associées
         afficherBoitOutilsAction.triggered.connect(
             self.mainWindow.uiController.toggleBoiteOutils
         )
@@ -107,6 +139,7 @@ class MenuBarre(QMenuBar):
             self.mainWindow.uiController.changeThemeVersFusion
         )
 
+        # Ajouter les actions
         vuesSubMenu.addAction(afficherBoitOutilsAction)
         vuesSubMenu.addAction(afficherItemAction)
         vuesSubMenu.addAction(afficherProprieteAction)
@@ -116,10 +149,13 @@ class MenuBarre(QMenuBar):
         themesSubMenu.addAction(themeWindowsVista)
         themesSubMenu.addAction(themeFusion)
 
-        # Ajouter les actions
         affichageMenu.addAction
 
     def nouveauProjet(self) -> None:
+        """
+        Lance un dialogue pour créer un nouveau projet avec des dimensions spécifiées par l'utilisateur.
+        Crée le projet si l'utilisateur confirme avec des dimensions valides.
+        """
         dialog = DialogNouveauProjet(self)
         if dialog.exec():
             largeur, hauteur = dialog.getDimensions()
@@ -129,6 +165,27 @@ class MenuBarre(QMenuBar):
                 self.projetController.creerNouveauProjet(largeur, hauteur)
             except ValueError:
                 pass
+
+    def listeProjetExistant(self) -> list:
+        dossierSauvegarde = "RESSOURCES/sauvegarde"
+        projetsExistants = []
+        try:
+            fichiers = os.listdir(dossierSauvegarde)
+            for fichier in fichiers:
+                if fichier.endswith(".json"):
+                    projetsExistants.append(fichier)
+        except Exception as e:
+            logging.error(
+                f"Erreur lors de la construction de la liste des fichiers de sauvegarde (MenuBarre): \n{e}",
+                exc_info=True,
+            )
+            QMessageBox.critical(
+                None,
+                "Erreur d'Exportation",
+                f"Erreur lors de la construction de la liste des fichiers de sauvegarde (MenuBarre): \n{e}",
+            )
+
+        return projetsExistants
 
     def exporterProjet(self) -> None:
         reply = QMessageBox.question(

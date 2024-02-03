@@ -1,8 +1,17 @@
+""" //////////////////////////////////////////
+    S'occupe de basculer la visibilité des widget.
+    C'est methode sont appelé par la barre de menu
+//////////////////////////////////////////"""
+
 from PySide6.QtWidgets import QScrollArea, QApplication
 from Views.image_view import ImageView
 
 
 class UiController:
+    """
+    Contrôleur de l'interface utilisateur gérant la visibilité des dock widgets et la manipulation des onglets.
+    """
+
     def __init__(
         self,
         tabWidget,
@@ -18,11 +27,6 @@ class UiController:
         self.tabWidget = tabWidget
         self.itemWidget = itemWidget
         self.boiteOutilsDockWidget = boiteOutilsDockWidget
-
-    """ //////////////////////////////////////////
-    S'occupe de basculer la visibilité des widget.
-    C'est methode sont appelé par la barre de menu
-    //////////////////////////////////////////"""
 
     def toggleDataView(self) -> None:
         # Basculer la visibilité de DataView DockWidget

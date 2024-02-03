@@ -20,7 +20,7 @@ from Controllers.projet_controller import ProjetController
 from Controllers.projet_controller import EditableTabBar
 from Controllers.ui_controller import UiController
 from Controllers.image_controller import ImageController
-from Models.text_item import *
+from Models.itemsModels import *
 
 
 class MainWindow(QMainWindow):

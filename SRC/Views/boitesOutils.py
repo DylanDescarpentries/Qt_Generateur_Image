@@ -2,6 +2,10 @@ from PySide6.QtWidgets import QPushButton, QGridLayout, QWidget
 
 
 class BoiteOutils(QWidget):
+    """
+    Vue pour afficher le Widgets contenant les outils pour la création de projet
+    """
+
     def __init__(self, mainWindow, dataController, imageController) -> None:
         super().__init__()
         self.mainWindow = mainWindow
@@ -14,6 +18,7 @@ class BoiteOutils(QWidget):
         self.textAjout = QPushButton("Ajouter un texte")
         self.formeGemotriqueAjout = QPushButton("Ajouter une Forme")
         self.ImageAjout = QPushButton("Ajouter Image")
+
         # Ajout des boutons au layout en spécifiant la ligne et la colonne
         self.layout.addWidget(self.tableauImport, 0, 0)
         self.layout.addWidget(self.textAjout, 0, 1)

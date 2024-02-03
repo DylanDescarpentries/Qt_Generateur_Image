@@ -1,9 +1,3 @@
-import logging
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QMessageBox
-from PySide6.QtGui import QPixmap, QPainter, QFont, QBrush, QColor, QPen
-from PySide6.QtCore import Qt, Signal
-from Models.text_item import *
-
 """///////////////////////////////////////////////////////////////////////////
     Widget pour afficher et manipuler des images dans le Générateur de fiches.
 
@@ -11,13 +5,17 @@ from Models.text_item import *
     textuelles et d'exporter l'image résultante.
 ////////////////////////////////////////////////////////////////////////////"""
 
+import logging
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QMessageBox
+from PySide6.QtGui import QPixmap, QPainter, QFont, QBrush, QColor, QPen
+from PySide6.QtCore import Qt, Signal
+from Models.itemsModels import *
+
 
 class ImageView(QWidget):
     itemAdded = Signal(TextColonneItem)
 
-    def __init__(
-        self, parent=None, imageLargeur: int = 800, imageHauteur: int = 600
-    ) -> None:
+    def __init__(self, parent=None, largeur: int = 800, hauteur: int = 600) -> None:
         """
         Initialise ImageView avec une image vide de dimensions spécifiées.
 
@@ -26,20 +24,22 @@ class ImageView(QWidget):
         :param imageHauteur: Hauteur de l'image vide initiale.
         """
         super().__init__(parent)
+        self.largeur = largeur
+        self.hauteur = hauteur
         self.layout = QVBoxLayout(self)
         self.imageLabel = QLabel()
         self.layout.addWidget(self.imageLabel)
-        self.creerImageVide(imageLargeur, imageHauteur)
+        self.creerImageVide(largeur, hauteur)
         self.items = []  # Stocke les informations sur les colonnes ajoutées
 
-    def creerImageVide(self, width, height) -> None:
+    def creerImageVide(self, largeur, hauteur) -> None:
         """
         Crée et affiche une image vide de dimensions spécifiées.
 
-        :param width: Largeur de l'image vide.
-        :param height: Hauteur de l'image vide.
+        :param largeur: Largeur de l'image vide.
+        :param hauteur: Hauteur de l'image vide.
         """
-        videPixmap = QPixmap(width, height)
+        videPixmap = QPixmap(largeur, hauteur)
         videPixmap.fill(Qt.white)
         self.imageLabel.setPixmap(videPixmap)
 
@@ -63,12 +63,12 @@ class ImageView(QWidget):
             self.items.remove(itemToDelete)
         self.mettreAJourImage()
 
-    def reordonnerItems(self, nouveauxItems):
+    def reordonnerItems(self, nouveauxItems) -> None:
         # Met à jour l'ordre des items graphiques selon `nouveauxItems`
         self.items = nouveauxItems
         self.mettreAJourImage()
 
-    def mettreAJourImage(self):
+    def mettreAJourImage(self) -> None:
         try:
             pixmap = QPixmap(self.imageLabel.pixmap().size())
             pixmap.fill(Qt.white)

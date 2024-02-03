@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIcon
 from Models.data import PandasTableModel
-from Models.text_item import TextColonneItem, ImageColonneItem
+from Models.itemsModels import TextColonneItem, ImageColonneItem
 import pandas as pd
 
 
@@ -24,9 +24,10 @@ class DataView(QWidget):
 
     def __init__(self, mainWindow, dataController) -> None:
         """
-        Initialisation de DataView.
+        Initialise DataView, connecte les signaux et prépare l'UI.
 
-        :param mainWindow: Référence à la fenêtre principale de l'application pour accéder à d'autres composants.
+        :param mainWindow: La fenêtre principale pour l'accès global.
+        :param dataController: Le contrôleur pour la gestion des données.
         """
         super().__init__()
         self.mainWindow = mainWindow
@@ -37,8 +38,9 @@ class DataView(QWidget):
 
     def setupUI(self) -> None:
         """
-        Configure les éléments de l'interface utilisateur pour DataView.
+        Configure l'interface utilisateur de DataView, y compris la création de la vue de table et du sélecteur de feuille.
         """
+
         self.layout = QVBoxLayout(self)
         self.tableView = self.createTableView()
         self.sheetSelecteur = QComboBox(self)
@@ -46,9 +48,9 @@ class DataView(QWidget):
         self.layout.addWidget(self.tableView)
         self.sheetSelecteur.currentIndexChanged.connect(self.onSheetSelectionne)
 
-    def createTableView(self) -> None:
+    def createTableView(self) -> QTableView:
         """
-        Crée et configure le QTableView pour afficher les données pandas DataFrame.
+        Crée le QTableView pour l'affichage des données DataFrame.
 
         :return: Une instance configurée de QTableView.
         """
@@ -58,9 +60,11 @@ class DataView(QWidget):
         tableView.setModel(PandasTableModel(pd.DataFrame()))
         return tableView
 
-    def load_data(self, dataFrame):
+    def load_data(self, dataFrame: pd.DataFrame) -> None:
         """
-        Charge les données pandas DataFrame dans le modèle du QTableView.
+        Charge un DataFrame dans le modèle du QTableView.
+
+        :param dataFrame: Le DataFrame pandas à charger dans la vue.
         """
         try:
             model = self.tableView.model()
@@ -78,16 +82,21 @@ class DataView(QWidget):
             )
 
     def projetEstOuvert(self) -> bool:
+        """
+        Vérifie si un projet est actuellement ouvert dans l'application.
+
+        :return: Booléen indiquant si un projet est ouvert.
+        """
         return self.mainWindow.imageViewActif is not None
 
-    def afficherMessageErreurAbsenceProjet(self):
+    def afficherMessageErreurAbsenceProjet(self) -> None:
         QMessageBox.warning(
             self,
             "Action impossible",
             "Veuillez créer ou ouvrir un projet avant d'ajouter un item.",
         )
 
-    def afficherMessageErreurAbsenceTableau(self):
+    def afficherMessageErreurAbsenceTableau(self) -> None:
         QMessageBox.warning(
             self, "Action impossible", "Veuillez initialiser un tableau"
         )

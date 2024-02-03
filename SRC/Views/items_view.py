@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
 from Views.Widgets.customListWidget import CustomListWidget
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIcon
-from Models.text_item import TextColonneItem, TextUniqueItem
+from Models.itemsModels import TextColonneItem, TextUniqueItem
 from copy import deepcopy
 
 

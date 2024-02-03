@@ -1,19 +1,27 @@
-"""
+"""""" """""" """""" """""" """""" """""" """""" """""" """""" """
 Module de contrôle pour la gestion des images dans l'application.
-"""
+Principalement le controle de la vue contenant le projet
+""" """ """ """ """ """ """ """ """ """ """ """ """ """ """ """ """ """ """
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMessageBox, QInputDialog, QFileDialog
-from Models.text_item import TextUniqueItem, ImageUniqueItem, FormeGeometriqueItem
+from Models.itemsModels import TextUniqueItem, ImageUniqueItem, FormeGeometriqueItem
 from Views.Widgets.dialogFormeGeometriqueAjout import DialogFormeGeometriqueAjout
 
 
 class ImageController:
     """
-    Contrôleur pour la gestion des actions liées aux images et aux éléments textuels.
+    Contrôleur pour la gestion des actions liées aux images et aux éléments textuels dans l'application.
+    Permet de manipuler les propriétés des items et d'ajouter de nouveaux éléments au projet actif.
     """
 
     def __init__(self, mainWindow, itemWidget) -> None:
+        """
+        Initialise le contrôleur avec des références à la fenêtre principale et au widget d'items.
+
+        :param mainWindow: La fenêtre principale de l'application.
+        :param itemWidget: Le widget qui liste les items du projet actuel.
+        """
         self.mainWindow = mainWindow
         self.itemWidget = itemWidget
 

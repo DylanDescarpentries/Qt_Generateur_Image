@@ -164,7 +164,7 @@ class ProprietesWidget(QWidget):
         couleur: QColor = None,
         police: QFont = None,
         taillePolice: int = None,
-    ):
+    ) -> None:
         self.xpositionsEdit.setValue(x)
         self.ypositionsEdit.setValue(y)
         if largeur is not None:
@@ -179,7 +179,7 @@ class ProprietesWidget(QWidget):
             self.policeEdit.setCurrentFont(police)
             self.taillePoliceEdit.setValue(taillePolice)
 
-    def onFontComboBoxChanged(self):
+    def onFontComboBoxChanged(self) -> None:
         if self.fontEdit.currentText() == "Charger une police...":
             self.loadCustomFont()
         else:
