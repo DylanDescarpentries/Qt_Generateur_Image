@@ -39,7 +39,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Générateur de fiches")
         self.setWindowIcon(QIcon("RESSOURCES/Assets/images/logo/logo.ico"))
         self.setGeometry(0, 0, 1200, 720)  # Définit la taille initiale de la fenêtre
-        self.imageViewActif = ImageView(self)  # Référence à l'ImageView actuellement actif
+        self.imageViewActif = ImageView(
+            self
+        )  # Référence à l'ImageView actuellement actif
         self._setupUI()  # Configuration de l'interface utilisateur
 
     def _setupUI(self) -> None:
@@ -147,11 +149,15 @@ class MainWindow(QMainWindow):
 
     def onItemSelected(self, item) -> None:
         if isinstance(item, TextColonneItem) or isinstance(item, TextUniqueItem):
-            self.proprietesWidget.setProprietesItemOnButton(item.x, item.y, item.largeur, item.hauteur, item.fontSize)
+            self.proprietesWidget.setProprietesItemOnButton(
+                item.x, item.y, item.largeur, item.hauteur, item.fontSize
+            )
         elif isinstance(item, ImageUniqueItem):
             self.proprietesWidget.setProprietesItemOnButton(item.x, item.y)
         elif isinstance(item, FormeGeometriqueItem):
-            self.proprietesWidget.setProprietesItemOnButton(item.x, item.y, item.largeur, item.hauteur, item.radius)
+            self.proprietesWidget.setProprietesItemOnButton(
+                item.x, item.y, item.largeur, item.hauteur, item.radius
+            )
 
     def getActiveImageView(self) -> Optional[ImageView]:
         scrollArea = self.tabWidget.currentWidget()

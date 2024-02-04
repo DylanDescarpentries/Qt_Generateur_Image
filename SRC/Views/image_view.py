@@ -42,8 +42,6 @@ class ImageView(QWidget):
         videPixmap = QPixmap(largeur, hauteur)
         videPixmap.fill(Qt.white)
         self.imageLabel.setPixmap(videPixmap)
-        print(f"Dimensions de imageView: largeur={self.width()}, hauteur={self.height()}")
-
 
     def afficherNomColonne(self, nomColonne, donnees) -> None:
         """
@@ -72,7 +70,7 @@ class ImageView(QWidget):
         self.items = nouveauxItems
         self.mettreAJourLesIndex()
         self.mettreAJourImage()
-    
+
     def mettreAJourLesIndex(self):
         # Met à jout l'ordre des items aprèes une suppression
         for i, item in enumerate(self.items):
@@ -95,10 +93,14 @@ class ImageView(QWidget):
                     rect = QRect(item.x, item.y, item.largeur, item.hauteur)
                     painter.drawRect(rect)
                     painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
-                   
+
                     painter.setFont(QFont(item.font, item.fontSize))
                     painter.setPen(QPen(QColor(item.fontColor)))
-                    painter.drawText(rect, Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap, str(item.nom))
+                    painter.drawText(
+                        rect,
+                        Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap,
+                        str(item.nom),
+                    )
                 elif isinstance(item, ImageUniqueItem):
                     imageToDraw = QPixmap(item.imagePath)
                     painter.drawPixmap(

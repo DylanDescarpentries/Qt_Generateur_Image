@@ -69,7 +69,7 @@ class TextUniqueItem:
         nom: str,
         x: int,
         y: int,
-        largeur: int =120,
+        largeur: int = 120,
         hauteur: int = 50,
         font: str = "Arial",
         fontSize: str = 16,

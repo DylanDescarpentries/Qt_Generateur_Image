@@ -98,7 +98,9 @@ class MenuBarre(QMenuBar):
         affichageMenu = self.addMenu("Affichage")
         vuesSubMenu = QMenu("Vues", self)
         themesSubMenu = QMenu("Themes", self)
-        afficherElementSetup = QAction("Afficher l'élément le plus long", self, checkable=True)
+        afficherElementSetup = QAction(
+            "Afficher l'élément le plus long", self, checkable=True
+        )
         raffraichirImageAction = QAction("Rafraichir image", self)
 
         affichageMenu.addAction(raffraichirImageAction)
@@ -123,8 +125,12 @@ class MenuBarre(QMenuBar):
         afficherBoitOutilsAction.setShortcut("B")
 
         # connexion des menus avec leur methode associées
-        raffraichirImageAction.triggered.connect(self.mainWindow.imageViewActif.mettreAJourImage)
-        afficherElementSetup.triggered.connect(self.dataController.switchAffichageElementSetup)
+        raffraichirImageAction.triggered.connect(
+            self.mainWindow.imageViewActif.mettreAJourImage
+        )
+        afficherElementSetup.triggered.connect(
+            self.dataController.switchAffichageElementSetup
+        )
         afficherBoitOutilsAction.triggered.connect(
             self.mainWindow.uiController.toggleBoiteOutils
         )
@@ -151,7 +157,6 @@ class MenuBarre(QMenuBar):
         vuesSubMenu.addAction(afficherItemAction)
         vuesSubMenu.addAction(afficherProprieteAction)
         vuesSubMenu.addAction(afficherDataViewAction)
-
 
         afficherElementSetup
         themesSubMenu.addAction(themeWindows)

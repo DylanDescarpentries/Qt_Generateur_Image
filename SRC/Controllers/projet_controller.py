@@ -50,7 +50,6 @@ class ProjetController(QObject):
         indexNouvelOnglet = self.tabWidget.addTab(scrollArea, tabTitle)
         self.tabWidget.setCurrentIndex(indexNouvelOnglet)
         self.mainWindow.imageViewActif = imageView
-        print(f"Largeur choisie: {largeur}, Hauteur choisie: {hauteur}")
 
     def preparerLaSauvegarde(self) -> None:
         """Prépare les données du projet actif pour la sauvegarde."""
@@ -75,7 +74,6 @@ class ProjetController(QObject):
         :param itemsClassifies: Liste des items classifiés à sauvegarder, organisés par type.
         """
         # Définition de la structure de base pour le fichier de sauvegarde
-        print(f"Dimensions avant sauvegarde: largeur={self.mainWindow.imageViewActif.width()}, hauteur={self.mainWindow.imageViewActif.height()}")
         sauvegarde = {
             "titre": self.mainWindow.tabWidget.tabText(
                 self.mainWindow.tabWidget.currentIndex()
@@ -86,8 +84,6 @@ class ProjetController(QObject):
             },
             "items": [],
         }
-        print(f"Dimensions après sauvegarde: largeur={self.mainWindow.imageViewActif.width()}, hauteur={self.mainWindow.imageViewActif.height()}")
-
 
         # Ajout des items au dictionnaire de sauvegarde
         for categorie, items in zip(
@@ -140,7 +136,7 @@ class ProjetController(QObject):
                 "font": item.font,
                 "fontSize": item.fontSize,
                 "fontColor": item.fontColor,
-                "index": item.index
+                "index": item.index,
             }
         if categorie == "TextColonneItem":
             return {
@@ -153,7 +149,7 @@ class ProjetController(QObject):
                 "font": item.font,
                 "fontSize": item.fontSize,
                 "fontColor": item.fontColor,
-                "index": item.index
+                "index": item.index,
             }
         if categorie == "ImageUniqueItem":
             return {
@@ -161,7 +157,7 @@ class ProjetController(QObject):
                 "Chemin Image": item.imagePath,
                 "position": {"x": item.x, "y": item.y},
                 "dimensions": {"largeur": item.largeur, "hauteur": item.hauteur},
-                "index": item.index
+                "index": item.index,
             }
 
         if categorie == "ImageColonneItem":
@@ -171,7 +167,7 @@ class ProjetController(QObject):
                 "Chemin Image": item.imagePath,
                 "positions": {"x": item.x, "y": item.y},
                 "dimensions": {"largeur": item.largeur, "hauteur": item.hauteur},
-                "index": item.index
+                "index": item.index,
             }
         if categorie == "FormeGeometriqueItem":
             return {
@@ -181,7 +177,7 @@ class ProjetController(QObject):
                 "dimensions": {"largeur": item.largeur, "hauteur": item.hauteur},
                 "radius": item.radius,
                 "couleur": item.color,
-                "index": item.index
+                "index": item.index,
             }
 
     def chargerProjet(self, nomSauvegarde: str) -> None:
@@ -193,7 +189,9 @@ class ProjetController(QObject):
         with open(f"RESSOURCES\sauvegarde\{nomSauvegarde}", "r") as fichierSauvegarde:
             donneesProjet = json.load(fichierSauvegarde)
 
-        itemsRecrees = [self.recreerItem(itemData) for itemData in donneesProjet.get("items", [])]
+        itemsRecrees = [
+            self.recreerItem(itemData) for itemData in donneesProjet.get("items", [])
+        ]
         itemsTries = sorted(itemsRecrees, key=lambda item: item.index)
 
         # récupère les dimensions du projet et le titre
@@ -231,7 +229,7 @@ class ProjetController(QObject):
             )
             item.index = itemData["index"]
             return item
-        
+
         if itemData["type"] == "ImageColonneItem":
             item = ImageColonneItem(
                 nom=itemData["nom"],
@@ -239,7 +237,7 @@ class ProjetController(QObject):
                 x=itemData["positions"]["x"],
                 y=itemData["positions"]["y"],
                 largeur=itemData["dimensions"]["largeur"],
-                hauteur=itemData["dimensions"]["hauteur"],  
+                hauteur=itemData["dimensions"]["hauteur"],
             )
             item.index = itemData["index"]
             return item
@@ -270,7 +268,7 @@ class ProjetController(QObject):
                 font=itemData["font"],
                 fontSize=itemData["fontSize"],
                 fontColor=itemData["fontColor"],
-          )
+            )
             item.index = itemData["index"]
             return item
 
@@ -284,7 +282,7 @@ class ProjetController(QObject):
             )
             item.index = itemData["index"]
             return item
-        
+
     def creerScroll(self, widget: ImageView) -> QScrollArea:
         """Crée et retourne une zone de défilement pour l'ImageView donné.
 
@@ -554,17 +552,32 @@ class ProjetController(QObject):
             for item in tousLesItemsTries:
                 if isinstance(item, ImageUniqueItem):
                     imageToDraw = QPixmap(item.imagePath)
-                    painter.drawPixmap(item.x, item.y, item.largeur, item.hauteur, imageToDraw)
+                    painter.drawPixmap(
+                        item.x, item.y, item.largeur, item.hauteur, imageToDraw
+                    )
 
                 elif isinstance(item, FormeGeometriqueItem):
                     brush = QBrush(Qt.SolidPattern)
                     brush.setColor(QColor(item.color))
                     painter.setBrush(brush)
 
-                    painter.drawRoundedRect(item.x, item.y, item.largeur, item.hauteur, item.radius, item.radius)
-                elif isinstance(item, ImageColonneItem) and numLigne < len(item.imagePath):
+                    painter.drawRoundedRect(
+                        item.x,
+                        item.y,
+                        item.largeur,
+                        item.hauteur,
+                        item.radius,
+                        item.radius,
+                    )
+                elif isinstance(item, ImageColonneItem) and numLigne < len(
+                    item.imagePath
+                ):
                     cheminImage = item.imagePath[numLigne]
-                    if isinstance(cheminImage, str) and not pd.isna(cheminImage) and cheminImage.strip() != "":
+                    if (
+                        isinstance(cheminImage, str)
+                        and not pd.isna(cheminImage)
+                        and cheminImage.strip() != ""
+                    ):
                         self.configurerImageColonne(painter, item, str(cheminImage))
 
                 elif isinstance(item, TextColonneItem) and numLigne < len(item.text):
@@ -580,7 +593,6 @@ class ProjetController(QObject):
                 "Erreur d'Exportation",
                 f"Une erreur inattendue est survenue lors de l'écriture des images : \n {e}.",
             )
-
 
     def configurerImageColonne(
         self, painter, item: ImageColonneItem, cheminImage: str
@@ -605,7 +617,9 @@ class ProjetController(QObject):
         rect = QRect(item.x, item.y, item.largeur, item.hauteur)
         painter.setFont(QFont(item.font, item.fontSize))
         painter.setPen(QPen(QColor(item.fontColor)))
-        painter.drawText(rect, Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap, str(texte))
+        painter.drawText(
+            rect, Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap, str(texte)
+        )
 
     def sauvegarderImage(self, image: QImage, dossierExport: str, numLigne: int):
         """Sauvegarde une image dans le dossier spécifié.

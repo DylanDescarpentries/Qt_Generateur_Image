@@ -1,16 +1,17 @@
 from PySide6.QtWidgets import QSpinBox
 from PySide6.QtCore import Qt, QTimer, QPoint
 
+
 class SpinBox(QSpinBox):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._timer = QTimer(self)  
-        self._timer.setSingleShot(True) 
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
         self._timer.timeout.connect(self._resetSpeed)
-        self._initialStep = 1  
-        self._currentStep = self._initialStep 
-        self._accelerationFactor = 2  
-        self._maximumStep = 50 
+        self._initialStep = 1
+        self._currentStep = self._initialStep
+        self._accelerationFactor = 2
+        self._maximumStep = 50
         self.setMouseTracking(True)
         self._dragStartPos = QPoint()
         self._dragging = False
@@ -22,23 +23,25 @@ class SpinBox(QSpinBox):
             self._currentStep = self._initialStep
         else:
             # Si le timer est déjà actif, on accélère
-            self._currentStep = min(self._currentStep * self._accelerationFactor, self._maximumStep)
-        
+            self._currentStep = min(
+                self._currentStep * self._accelerationFactor, self._maximumStep
+            )
+
         self._timer.start(100)  # Réinitialise le timer à chaque événement de molette
-        
+
         # Calcul de la direction de la rotation de la molette et application du pas actuel
         numDegrees = event.angleDelta().y() / 8
         numSteps = numDegrees / 15  # Qt utilise par défaut 15 degrés par pas de molette
         self.stepBy(int(numSteps * self._currentStep))
-        
+
         event.accept()  # Marque l'événement comme traité
 
     def _resetSpeed(self):
         """Réinitialise le pas à sa valeur initiale après un délai sans utilisation de la molette."""
         self._currentStep = self._initialStep
 
-
     """Gestion du cliqué glissé pour modifier la valeur du SpinBox"""
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self._dragStartPos = event.pos()
@@ -60,5 +63,3 @@ class SpinBox(QSpinBox):
         if event.button() == Qt.LeftButton and self._dragging:
             self._dragging = False
             event.accept()
-
-
