@@ -8,7 +8,7 @@
 import logging
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QMessageBox
 from PySide6.QtGui import QPixmap, QPainter, QFont, QBrush, QColor, QPen
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QRect
 from Models.itemsModels import *
 
 
@@ -42,6 +42,8 @@ class ImageView(QWidget):
         videPixmap = QPixmap(largeur, hauteur)
         videPixmap.fill(Qt.white)
         self.imageLabel.setPixmap(videPixmap)
+        print(f"Dimensions de imageView: largeur={self.width()}, hauteur={self.height()}")
+
 
     def afficherNomColonne(self, nomColonne, donnees) -> None:
         """
@@ -54,6 +56,7 @@ class ImageView(QWidget):
         self.mettreAJourImage()
 
     def ajouterItem(self, item) -> None:
+        item.index = len(self.items)
         self.items.append(item)
         self.itemAdded.emit(item)
         self.mettreAJourImage()
@@ -61,12 +64,19 @@ class ImageView(QWidget):
     def supprimerItem(self, itemToDelete) -> None:
         if itemToDelete in self.items:
             self.items.remove(itemToDelete)
+        self.mettreAJourLesIndex()
         self.mettreAJourImage()
 
     def reordonnerItems(self, nouveauxItems) -> None:
         # Met à jour l'ordre des items graphiques selon `nouveauxItems`
         self.items = nouveauxItems
+        self.mettreAJourLesIndex()
         self.mettreAJourImage()
+    
+    def mettreAJourLesIndex(self):
+        # Met à jout l'ordre des items aprèes une suppression
+        for i, item in enumerate(self.items):
+            item.index = i
 
     def mettreAJourImage(self) -> None:
         try:
@@ -74,16 +84,22 @@ class ImageView(QWidget):
             pixmap.fill(Qt.white)
             painter = QPainter(pixmap)
 
-            for item in self.items:
+            sortedItems = sorted(self.items, key=lambda item: item.index)
+
+            for item in sortedItems:
                 if isinstance(item, TextUniqueItem) or isinstance(
                     item, TextColonneItem
                 ):
-                    # Dessinez le texte comme avant
+                    # réinitialise le brush
+                    painter.setBrush(Qt.NoBrush)
+                    rect = QRect(item.x, item.y, item.largeur, item.hauteur)
+                    painter.drawRect(rect)
+                    painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
+                   
                     painter.setFont(QFont(item.font, item.fontSize))
                     painter.setPen(QPen(QColor(item.fontColor)))
-                    painter.drawText(item.x, item.y, item.nom)
+                    painter.drawText(rect, Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap, str(item.nom))
                 elif isinstance(item, ImageUniqueItem):
-                    # Dessinez l'image comme avant
                     imageToDraw = QPixmap(item.imagePath)
                     painter.drawPixmap(
                         item.x, item.y, item.largeur, item.hauteur, imageToDraw
@@ -117,3 +133,9 @@ class ImageView(QWidget):
                 "Rafraichissement Image ",
                 f"Problème lors du Rafraichissement de l'image: \n{e}.",
             )
+
+    def afficherElementLePlusGrand(self, text_colonne_items):
+        for item in text_colonne_items:
+            longest_element = max(item.text, key=lambda x: len(str(x)))
+            item.nom = longest_element
+        self.mettreAJourImage()

@@ -4,9 +4,10 @@ Principalement le controle de la vue contenant le projet
 """ """ """ """ """ """ """ """ """ """ """ """ """ """ """ """ """ """ """
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QMessageBox, QInputDialog, QFileDialog
+from PySide6.QtWidgets import QMessageBox, QFileDialog
 from Models.itemsModels import TextUniqueItem, ImageUniqueItem, FormeGeometriqueItem
 from Views.Widgets.dialogFormeGeometriqueAjout import DialogFormeGeometriqueAjout
+from utils.textdialog import TextDialog
 
 
 class ImageController:
@@ -101,31 +102,28 @@ class ImageController:
 
     def onTextAjout(self) -> None:
         if self.mainWindow.imageViewActif:
-            texte, ok = QInputDialog.getText(
-                self.mainWindow, "Ajouter Texte", "Entrer votre texte :"
-            )
-            if ok:
-                if texte == "":
+            dialog = TextDialog(self.mainWindow)
+            if dialog.exec():
+                texte = dialog.getText()
+                if texte.strip() == "":
                     QMessageBox.warning(
                         self.mainWindow, "Attention !", "Vous n'avez pas entré de texte"
                     )
                 else:
                     textItem = TextUniqueItem(texte, 20, 20)
                     self.mainWindow.imageViewActif.ajouterItem(textItem)
-                    self.mainWindow.itemWidget.ajouterItemVersListe(textItem)
         else:
             self.afficherMessageErreur()
 
     def onImageAjout(self) -> None:
         if self.mainWindow.imageViewActif:
             imagePath = QFileDialog.getOpenFileName(
-                None, "Sélectionner une image", "", "Images (*.png *.jpg *.jpeg)"
+                None, "Sélectionner une image", "", "Images (*.png)"
             )[0]
             if imagePath:
                 x, y, width, height = 20, 20, 100, 100
                 imageItem = ImageUniqueItem(imagePath, x, y, width, height)
                 self.mainWindow.imageViewActif.ajouterItem(imageItem)
-                self.mainWindow.itemWidget.ajouterItemVersListe(imageItem)
         else:
             self.afficherMessageErreur()
 
@@ -139,12 +137,9 @@ class ImageController:
                     hauteur = int(hauteur)
                     radius = int(radius)
                     formeGeometriqueItem = FormeGeometriqueItem(
-                        "test", 20, 20, largeur, hauteur, radius, "black"
+                        "Objet", 40, 40, largeur, hauteur, radius, "black"
                     )
                     self.mainWindow.imageViewActif.ajouterItem(formeGeometriqueItem)
-                    self.mainWindow.itemWidget.ajouterItemVersListe(
-                        formeGeometriqueItem
-                    )
                 except ValueError:
                     pass
         else:

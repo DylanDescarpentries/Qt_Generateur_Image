@@ -10,21 +10,28 @@ class TextColonneItem:
 
     def __init__(
         self,
+        id: str,
         nom: str,
         text: list[str],
         x: int = 20,
         y: int = 20,
+        largeur: int = 120,
+        hauteur: int = 50,
         font: str = "Arial",
-        fontSize: str = 12,
+        fontSize: str = 16,
         fontColor: str = "black",
     ) -> None:
+        self.id = id
         self.nom = nom
         self.text = text
         self.x = x
         self.y = y
+        self.largeur = largeur
+        self.hauteur = hauteur
         self.font = font
         self.fontSize = fontSize
         self.fontColor = fontColor
+        self.index = -1
 
     def __str__(self) -> str:
         return self.nom
@@ -39,8 +46,8 @@ class ImageColonneItem:
         nom: str = r"RESSOURCES\ASSETS\images\default.png",
         x: int = 20,
         y: int = 20,
-        largeur: int = 20,
-        hauteur: int = 20,
+        largeur: int = 100,
+        hauteur: int = 100,
     ) -> None:
         self.nom = nom
         self.imagePath = imagePath
@@ -48,6 +55,7 @@ class ImageColonneItem:
         self.y = y
         self.largeur = largeur
         self.hauteur = hauteur
+        self.index = -1
 
     def __str__(self) -> str:
         return self.nom
@@ -61,16 +69,21 @@ class TextUniqueItem:
         nom: str,
         x: int,
         y: int,
+        largeur: int =120,
+        hauteur: int = 50,
         font: str = "Arial",
-        fontSize: str = 12,
+        fontSize: str = 16,
         fontColor: str = "black",
     ) -> None:
         self.nom = nom
         self.x = x
         self.y = y
+        self.largeur = largeur
+        self.hauteur = hauteur
         self.font = font
         self.fontSize = fontSize
         self.fontColor = fontColor
+        self.index = -1
 
     def __str__(self) -> str:
         return self.nom
@@ -87,6 +100,7 @@ class ImageUniqueItem:
         self.y = y
         self.largeur = largeur
         self.hauteur = hauteur
+        self.index = -1
 
     def __str__(self) -> str:
         return os.path.basename(self.imagePath)
@@ -97,7 +111,7 @@ class FormeGeometriqueItem:
 
     def __init__(
         self,
-        nom: str = "test",
+        nom: str = "Forme Item",
         x: int = 20,
         y: int = 20,
         largeur: int = 20,
@@ -112,6 +126,7 @@ class FormeGeometriqueItem:
         self.hauteur = hauteur
         self.radius = radius
         self.color = color
+        self.index = -1
 
     def __str__(self) -> str:
         return self.nom

@@ -39,9 +39,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Générateur de fiches")
         self.setWindowIcon(QIcon("RESSOURCES/Assets/images/logo/logo.ico"))
         self.setGeometry(0, 0, 1200, 720)  # Définit la taille initiale de la fenêtre
-        self.imageViewActif = None  # Référence à l'ImageView actuellement actif
+        self.imageViewActif = ImageView(self)  # Référence à l'ImageView actuellement actif
         self._setupUI()  # Configuration de l'interface utilisateur
-        self.itemWidget = ItemWidget(self.proprietesWidget)
 
     def _setupUI(self) -> None:
         self._setupCentralWidget()
@@ -60,7 +59,7 @@ class MainWindow(QMainWindow):
         self.tabWidget.setTabsClosable(True)
 
     def _setupControllers(self) -> None:
-        self.dataController = DataController()
+        self.dataController = DataController(self)
         self.projetController = ProjetController(self, self.tabWidget)
         self.itemWidget = ItemWidget(self)
         self.imageController = ImageController(self, self.itemWidget)
@@ -147,13 +146,12 @@ class MainWindow(QMainWindow):
             self.imageViewActif.ajouterItem(item)
 
     def onItemSelected(self, item) -> None:
-        if isinstance(item, TextColonneItem):
-            self.proprietesWidget.setProprietesItemOnButton(item.x, item.y)
-        # Gère ImageUniqueItem
+        if isinstance(item, TextColonneItem) or isinstance(item, TextUniqueItem):
+            self.proprietesWidget.setProprietesItemOnButton(item.x, item.y, item.largeur, item.hauteur, item.fontSize)
         elif isinstance(item, ImageUniqueItem):
             self.proprietesWidget.setProprietesItemOnButton(item.x, item.y)
         elif isinstance(item, FormeGeometriqueItem):
-            self.proprietesWidget.setProprietesItemOnButton(item.x, item.y)
+            self.proprietesWidget.setProprietesItemOnButton(item.x, item.y, item.largeur, item.hauteur, item.radius)
 
     def getActiveImageView(self) -> Optional[ImageView]:
         scrollArea = self.tabWidget.currentWidget()

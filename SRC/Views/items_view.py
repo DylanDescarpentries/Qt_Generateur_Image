@@ -5,8 +5,6 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QMenu,
     QInputDialog,
-    QApplication,
-    QStyle,
 )
 from Views.Widgets.customListWidget import CustomListWidget
 from PySide6.QtCore import Qt, Signal
@@ -92,11 +90,13 @@ class ItemWidget(QWidget):
             self.elementCopie = selectedItem.data(Qt.UserRole)
 
     def collerItem(self) -> None:
+        nombreCopie = 0
         if self.elementCopie:
             itemCopie = deepcopy(self.elementCopie)
             if isinstance(itemCopie, (TextUniqueItem, TextColonneItem)):
-                itemCopie.nom += " - copie -"
+                itemCopie.nom += f" - copie -{nombreCopie}"
                 self.mainWindow.imageViewActif.ajouterItem(itemCopie)
+                nombreCopie + 1
 
     def modifierItem(self) -> None:
         selectedItem = self.itemsList.currentItem()
@@ -150,8 +150,7 @@ class ItemWidget(QWidget):
             self.itemSelected.emit(textItem)
 
     def getItemFor(self, listItem) -> None:
-        Item = listItem.data(Qt.UserRole)
-        return Item
+        return listItem.data(Qt.UserRole)
 
     def updateList(self, items) -> None:
         self.itemsList.clear()

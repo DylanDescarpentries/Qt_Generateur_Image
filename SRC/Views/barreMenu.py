@@ -98,9 +98,13 @@ class MenuBarre(QMenuBar):
         affichageMenu = self.addMenu("Affichage")
         vuesSubMenu = QMenu("Vues", self)
         themesSubMenu = QMenu("Themes", self)
+        afficherElementSetup = QAction("Afficher l'élément le plus long", self, checkable=True)
+        raffraichirImageAction = QAction("Rafraichir image", self)
 
+        affichageMenu.addAction(raffraichirImageAction)
         affichageMenu.addMenu(vuesSubMenu)
         affichageMenu.addMenu(themesSubMenu)
+        affichageMenu.addAction(afficherElementSetup)
 
         afficherItemAction = QAction("Afficher Items", self)
         afficherProprieteAction = QAction("Propriétés", self)
@@ -112,12 +116,15 @@ class MenuBarre(QMenuBar):
         themeFusion = QAction("Fusion", self)
 
         # raccourcis clavier
+        afficherElementSetup.setShortcut("Ctrl+I")
         afficherItemAction.setShortcut("I")
         afficherDataViewAction.setShortcut("T")
         afficherProprieteAction.setShortcut("P")
         afficherBoitOutilsAction.setShortcut("B")
 
         # connexion des menus avec leur methode associées
+        raffraichirImageAction.triggered.connect(self.mainWindow.imageViewActif.mettreAJourImage)
+        afficherElementSetup.triggered.connect(self.dataController.switchAffichageElementSetup)
         afficherBoitOutilsAction.triggered.connect(
             self.mainWindow.uiController.toggleBoiteOutils
         )
@@ -139,17 +146,17 @@ class MenuBarre(QMenuBar):
             self.mainWindow.uiController.changeThemeVersFusion
         )
 
-        # Ajouter les actions
+        # Ajouter les sous_menus
         vuesSubMenu.addAction(afficherBoitOutilsAction)
         vuesSubMenu.addAction(afficherItemAction)
         vuesSubMenu.addAction(afficherProprieteAction)
         vuesSubMenu.addAction(afficherDataViewAction)
 
+
+        afficherElementSetup
         themesSubMenu.addAction(themeWindows)
         themesSubMenu.addAction(themeWindowsVista)
         themesSubMenu.addAction(themeFusion)
-
-        affichageMenu.addAction
 
     def nouveauProjet(self) -> None:
         """

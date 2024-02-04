@@ -148,7 +148,7 @@ class DataView(QWidget):
                     return
 
                 # Créer un TextItem avec la liste des données
-                textItem = TextColonneItem(nomColonne, donnees)
+                textItem = TextColonneItem(nomColonne, nomColonne, donnees)
 
                 # Émettre le signal avec l'objet TextItem
                 self.colonneAjoutee.emit(textItem)

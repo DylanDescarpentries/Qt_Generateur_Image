@@ -4,7 +4,6 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QGroupBox,
     QPushButton,
-    QSpinBox,
     QLabel,
     QComboBox,
     QColorDialog,
@@ -12,6 +11,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QFontDatabase, QColor, QFont
 from PySide6.QtCore import Signal
+from utils.SpinBox import SpinBox
 
 
 class ProprietesWidget(QWidget):
@@ -51,9 +51,9 @@ class ProprietesWidget(QWidget):
     def setupDimensionsWidget(self) -> None:
         self.dimensionsWidget = QWidget()
         self.dimensionsLayout = QHBoxLayout(self.dimensionsWidget)
-        self.largeurEdit = QSpinBox(self.dimensionsWidget)
-        self.hauteurEdit = QSpinBox(self.dimensionsWidget)
-        self.radiusEdit = QSpinBox(self.dimensionsWidget)
+        self.largeurEdit = SpinBox(self.dimensionsWidget)
+        self.hauteurEdit = SpinBox(self.dimensionsWidget)
+        self.radiusEdit = SpinBox(self.dimensionsWidget)
         self.dimensionsLayout.addWidget(QLabel("Largeur:"))
         self.dimensionsLayout.addWidget(self.largeurEdit)
         self.dimensionsLayout.addWidget(QLabel("Hauteur:"))
@@ -75,12 +75,15 @@ class ProprietesWidget(QWidget):
     def setupPositionsWidget(self) -> None:
         self.positionsWidget = QWidget()
         self.positionsLayout = QHBoxLayout(self.positionsWidget)
-        self.xpositionsEdit = QSpinBox(self.positionsWidget)
-        self.ypositionsEdit = QSpinBox(self.positionsWidget)
+        self.xpositionsEdit = SpinBox(self.positionsWidget)
+        self.ypositionsEdit = SpinBox(self.positionsWidget)
 
         maxValues = 999999
+        minValues = -999999
         self.xpositionsEdit.setMaximum(maxValues)
         self.ypositionsEdit.setMaximum(maxValues)
+        self.xpositionsEdit.setMinimum(minValues)
+        self.ypositionsEdit.setMinimum(minValues)
 
         self.positionsLayout.addWidget(QLabel("Position X :"))
         self.positionsLayout.addWidget(self.xpositionsEdit)
@@ -114,7 +117,7 @@ class ProprietesWidget(QWidget):
         self.fontEdit.currentTextChanged.connect(self.fontStyleChanged.emit)
 
     def setupFontSizeSpinBox(self) -> None:
-        self.fontSizeEdit = QSpinBox(self)
+        self.fontSizeEdit = SpinBox(self)
         self.texteLayout.addWidget(QLabel("Taille Police :"))
         self.texteLayout.addWidget(self.fontSizeEdit)
         self.fontSizeEdit.valueChanged.connect(self.fontSizeChanged.emit)
@@ -171,11 +174,7 @@ class ProprietesWidget(QWidget):
             self.largeurEdit.setValue(largeur)
         if hauteur is not None:
             self.hauteurEdit.setValue(hauteur)
-        if couleur is not None:
-            # Supposons que vous avez un widget QColorDialog ou similaire pour la couleur
-            self.couleurEdit.setCurrentColor(couleur)
         if police is not None and taillePolice is not None:
-            # Supposons que vous avez un QFontComboBox et un QSpinBox pour la police et la taille
             self.policeEdit.setCurrentFont(police)
             self.taillePoliceEdit.setValue(taillePolice)
 

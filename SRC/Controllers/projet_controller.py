@@ -4,6 +4,7 @@ notamment l'exportations des projets et la sauvegarde de ceux-ci.
 """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """"""
 
 import os, logging, json
+import pandas as pd
 from pandas import isna
 from typing import Optional, Any, Dict
 from PySide6.QtWidgets import (
@@ -14,7 +15,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QScrollArea,
 )
-from PySide6.QtCore import Qt, QObject
+from PySide6.QtCore import Qt, QObject, QRect
 from PySide6.QtGui import QImage, QPainter, QFont, QPixmap, QPen, QColor, QBrush
 from Views.image_view import ImageView
 from Views.Widgets.progressbar import ProgressBar
@@ -49,6 +50,7 @@ class ProjetController(QObject):
         indexNouvelOnglet = self.tabWidget.addTab(scrollArea, tabTitle)
         self.tabWidget.setCurrentIndex(indexNouvelOnglet)
         self.mainWindow.imageViewActif = imageView
+        print(f"Largeur choisie: {largeur}, Hauteur choisie: {hauteur}")
 
     def preparerLaSauvegarde(self) -> None:
         """Prépare les données du projet actif pour la sauvegarde."""
@@ -73,16 +75,19 @@ class ProjetController(QObject):
         :param itemsClassifies: Liste des items classifiés à sauvegarder, organisés par type.
         """
         # Définition de la structure de base pour le fichier de sauvegarde
+        print(f"Dimensions avant sauvegarde: largeur={self.mainWindow.imageViewActif.width()}, hauteur={self.mainWindow.imageViewActif.height()}")
         sauvegarde = {
             "titre": self.mainWindow.tabWidget.tabText(
                 self.mainWindow.tabWidget.currentIndex()
             ),
             "dimensions": {
-                "largeur": self.mainWindow.imageViewActif.width(),
-                "hauteur": self.mainWindow.imageViewActif.height(),
+                "largeur": self.mainWindow.imageViewActif.largeur,
+                "hauteur": self.mainWindow.imageViewActif.hauteur,
             },
             "items": [],
         }
+        print(f"Dimensions après sauvegarde: largeur={self.mainWindow.imageViewActif.width()}, hauteur={self.mainWindow.imageViewActif.height()}")
+
 
         # Ajout des items au dictionnaire de sauvegarde
         for categorie, items in zip(
@@ -131,26 +136,32 @@ class ProjetController(QObject):
                 "type": categorie,
                 "nom": item.nom,
                 "position": {"x": item.x, "y": item.y},
+                "dimensions": {"largeur": item.largeur, "hauteur": item.hauteur},
                 "font": item.font,
                 "fontSize": item.fontSize,
                 "fontColor": item.fontColor,
+                "index": item.index
             }
         if categorie == "TextColonneItem":
             return {
                 "type": categorie,
+                "id": item.id,
                 "nom": item.nom,
                 "texte": item.text,
                 "positions": {"x": item.x, "y": item.y},
+                "dimensions": {"largeur": item.largeur, "hauteur": item.hauteur},
                 "font": item.font,
                 "fontSize": item.fontSize,
                 "fontColor": item.fontColor,
+                "index": item.index
             }
         if categorie == "ImageUniqueItem":
             return {
                 "type": categorie,
                 "Chemin Image": item.imagePath,
                 "position": {"x": item.x, "y": item.y},
-                "dimension": {"largeur": item.largeur, "hauteur": item.hauteur},
+                "dimensions": {"largeur": item.largeur, "hauteur": item.hauteur},
+                "index": item.index
             }
 
         if categorie == "ImageColonneItem":
@@ -160,15 +171,17 @@ class ProjetController(QObject):
                 "Chemin Image": item.imagePath,
                 "positions": {"x": item.x, "y": item.y},
                 "dimensions": {"largeur": item.largeur, "hauteur": item.hauteur},
+                "index": item.index
             }
         if categorie == "FormeGeometriqueItem":
             return {
                 "type": categorie,
                 "nom": item.nom,
                 "position": {"x": item.x, "y": item.y},
-                "dimension": {"largeur": item.largeur, "hauteur": item.hauteur},
+                "dimensions": {"largeur": item.largeur, "hauteur": item.hauteur},
                 "radius": item.radius,
                 "couleur": item.color,
+                "index": item.index
             }
 
     def chargerProjet(self, nomSauvegarde: str) -> None:
@@ -180,6 +193,9 @@ class ProjetController(QObject):
         with open(f"RESSOURCES\sauvegarde\{nomSauvegarde}", "r") as fichierSauvegarde:
             donneesProjet = json.load(fichierSauvegarde)
 
+        itemsRecrees = [self.recreerItem(itemData) for itemData in donneesProjet.get("items", [])]
+        itemsTries = sorted(itemsRecrees, key=lambda item: item.index)
+
         # récupère les dimensions du projet et le titre
         largeur = donneesProjet["dimensions"]["largeur"]
         hauteur = donneesProjet["dimensions"]["hauteur"]
@@ -187,8 +203,7 @@ class ProjetController(QObject):
         self.creerNouveauProjet(largeur, hauteur, tabTitle)
 
         # Itére sur les items sauvegardés et les recréer
-        for itemData in donneesProjet.get("items", []):
-            item = self.recreerItem(itemData)
+        for item in itemsTries:
             self.mainWindow.imageViewActif.ajouterItem(item)
 
         # Mettre à jour l'affichage de l'image
@@ -203,52 +218,20 @@ class ProjetController(QObject):
         :param itemData: Un dictionnaire contenant les données de l'item.
         :return: L'instance de l'item recréé.
         """
-        # Exemple de création d'un TextUniqueItem, adaptez selon les besoins
-        if itemData["type"] == "TextColonneItem":
-            item = TextColonneItem(
-                nom=itemData["nom"],
-                text=itemData["texte"],
-                x=itemData["positions"]["x"],
-                y=itemData["positions"]["y"],
-                font=itemData["font"],
-                fontSize=itemData["fontSize"],
-                fontColor=itemData["fontColor"],
-            )
-            return item
-
-        if itemData["type"] == "TextUniqueItem":
-            item = TextUniqueItem(
-                nom=itemData["nom"],
-                x=itemData["position"]["x"],
-                y=itemData["position"]["y"],
-                font=itemData["font"],
-                fontSize=itemData["fontSize"],
-                fontColor=itemData["fontColor"],
-            )
-            return item
-
-        if itemData["type"] == "ImageUniqueItem":
-            item = ImageUniqueItem(
-                imagePath=itemData["Chemin Image"],
-                x=itemData["position"]["x"],
-                y=itemData["position"]["y"],
-                largeur=itemData["dimension"]["largeur"],
-                hauteur=itemData["dimension"]["hauteur"],
-            )
-            return item
 
         if itemData["type"] == "FormeGeometriqueItem":
             item = FormeGeometriqueItem(
                 nom=itemData["nom"],
                 x=itemData["position"]["x"],
                 y=itemData["position"]["y"],
-                largeur=itemData["dimension"]["largeur"],
-                hauteur=itemData["dimension"]["hauteur"],
+                largeur=itemData["dimensions"]["largeur"],
+                hauteur=itemData["dimensions"]["hauteur"],
                 radius=itemData["radius"],
                 color=itemData["couleur"],
             )
+            item.index = itemData["index"]
             return item
-
+        
         if itemData["type"] == "ImageColonneItem":
             item = ImageColonneItem(
                 nom=itemData["nom"],
@@ -256,10 +239,52 @@ class ProjetController(QObject):
                 x=itemData["positions"]["x"],
                 y=itemData["positions"]["y"],
                 largeur=itemData["dimensions"]["largeur"],
-                hauteur=itemData["dimensions"]["hauteur"],
+                hauteur=itemData["dimensions"]["hauteur"],  
             )
+            item.index = itemData["index"]
             return item
 
+        if itemData["type"] == "TextColonneItem":
+            item = TextColonneItem(
+                id=str(itemData["id"]),
+                nom=str(itemData["nom"]),
+                text=itemData["texte"],
+                x=itemData["positions"]["x"],
+                y=itemData["positions"]["y"],
+                largeur=itemData["dimensions"]["largeur"],
+                hauteur=itemData["dimensions"]["hauteur"],
+                font=itemData["font"],
+                fontSize=itemData["fontSize"],
+                fontColor=itemData["fontColor"],
+            )
+            item.index = itemData["index"]
+            return item
+
+        if itemData["type"] == "TextUniqueItem":
+            item = TextUniqueItem(
+                nom=str(itemData["nom"]),
+                x=itemData["position"]["x"],
+                y=itemData["position"]["y"],
+                largeur=itemData["dimensions"]["largeur"],
+                hauteur=itemData["dimensions"]["hauteur"],
+                font=itemData["font"],
+                fontSize=itemData["fontSize"],
+                fontColor=itemData["fontColor"],
+          )
+            item.index = itemData["index"]
+            return item
+
+        if itemData["type"] == "ImageUniqueItem":
+            item = ImageUniqueItem(
+                imagePath=itemData["Chemin Image"],
+                x=itemData["position"]["x"],
+                y=itemData["position"]["y"],
+                largeur=itemData["dimensions"]["largeur"],
+                hauteur=itemData["dimensions"]["hauteur"],
+            )
+            item.index = itemData["index"]
+            return item
+        
     def creerScroll(self, widget: ImageView) -> QScrollArea:
         """Crée et retourne une zone de défilement pour l'ImageView donné.
 
@@ -505,6 +530,15 @@ class ProjetController(QObject):
         formeGemotriqueItem,
         numLigne,
     ) -> None:
+        # Créer une liste unique de tous les éléments
+        tousLesItems = (
+            imageUniqueItems
+            + imageColonneItem
+            + textColonneteItems
+            + textUniqueItems
+            + formeGemotriqueItem
+        )
+        tousLesItemsTries = sorted(tousLesItems, key=lambda item: item.index)
         """Dessine les items sur une image en utilisant QPainter.
 
         :param painter: QPainter utilisé pour dessiner les items.
@@ -516,44 +550,29 @@ class ProjetController(QObject):
         :param numLigne: Numéro de la ligne actuelle, utilisé pour les items en colonnes.
         """
         try:
-            # Dessiner les ImageUniqueItem
-            for item in imageUniqueItems:
-                imageToDraw = QPixmap(item.imagePath)
-                painter.drawPixmap(
-                    item.x, item.y, item.largeur, item.hauteur, imageToDraw
-                )
+            # Dessiner les éléments triés
+            for item in tousLesItemsTries:
+                if isinstance(item, ImageUniqueItem):
+                    imageToDraw = QPixmap(item.imagePath)
+                    painter.drawPixmap(item.x, item.y, item.largeur, item.hauteur, imageToDraw)
 
-            # Dessiner Les ImageColonneItem
-            for item in imageColonneItem:
-                if isinstance(item, ImageColonneItem) and numLigne < len(
-                    item.imagePath
-                ):
+                elif isinstance(item, FormeGeometriqueItem):
+                    brush = QBrush(Qt.SolidPattern)
+                    brush.setColor(QColor(item.color))
+                    painter.setBrush(brush)
+
+                    painter.drawRoundedRect(item.x, item.y, item.largeur, item.hauteur, item.radius, item.radius)
+                elif isinstance(item, ImageColonneItem) and numLigne < len(item.imagePath):
                     cheminImage = item.imagePath[numLigne]
-                    if (
-                        isinstance(cheminImage, str)
-                        and not isna(cheminImage)
-                        and cheminImage.strip() != ""
-                    ):
+                    if isinstance(cheminImage, str) and not pd.isna(cheminImage) and cheminImage.strip() != "":
                         self.configurerImageColonne(painter, item, str(cheminImage))
 
-            # dessiner les FormeGemotriqueItem
-            for item in formeGemotriqueItem:
-                brush = QBrush(Qt.SolidPattern)
-                brush.setColor(QColor(item.color))
-                painter.setBrush(brush)
-                painter.drawRoundedRect(
-                    item.x, item.y, item.largeur, item.hauteur, item.radius, item.radius
-                )
-
-            # Dessiner les TextColonneteItem
-            for item in textColonneteItems:
-                if numLigne < len(item.text):
+                elif isinstance(item, TextColonneItem) and numLigne < len(item.text):
                     ligne = item.text[numLigne]
                     self.configurerStyloEtTexte(painter, item, str(ligne))
 
-            # Dessiner les TextUniqueItem
-            for item in textUniqueItems:
-                self.configurerStyloEtTexte(painter, item, item.nom)
+                elif isinstance(item, TextUniqueItem):
+                    self.configurerStyloEtTexte(painter, item, item.nom)
         except Exception as e:
             logging.error(f"Erreur lors du dessin des items {e}", exc_info=True)
             QMessageBox.critical(
@@ -561,6 +580,7 @@ class ProjetController(QObject):
                 "Erreur d'Exportation",
                 f"Une erreur inattendue est survenue lors de l'écriture des images : \n {e}.",
             )
+
 
     def configurerImageColonne(
         self, painter, item: ImageColonneItem, cheminImage: str
@@ -582,12 +602,10 @@ class ProjetController(QObject):
         :param item: L'item de texte à dessiner.
         :param texte: Le texte à dessiner.
         """
-
+        rect = QRect(item.x, item.y, item.largeur, item.hauteur)
         painter.setFont(QFont(item.font, item.fontSize))
-        color = QColor(item.fontColor)
-        pen = QPen(color)
-        painter.setPen(pen)
-        painter.drawText(item.x, item.y, texte)
+        painter.setPen(QPen(QColor(item.fontColor)))
+        painter.drawText(rect, Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap, str(texte))
 
     def sauvegarderImage(self, image: QImage, dossierExport: str, numLigne: int):
         """Sauvegarde une image dans le dossier spécifié.
